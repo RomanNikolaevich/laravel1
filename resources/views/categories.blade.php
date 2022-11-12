@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -22,25 +21,26 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li ><a href="https://internet-shop.tmweb.ru">Все товары</a></li>
-                <li class="active"><a href="https://internet-shop.tmweb.ru/categories">Категории</a>
+                <li><a href="https://internet-shop.tmweb.ru">Все товары</a></li>
+                <li class="active"><a href="/categories">Категории</a>
                 </li>
-                <li ><a href="https://internet-shop.tmweb.ru/basket">В корзину</a></li>
-                <li><a href="https://internet-shop.tmweb.ru/reset">Сбросить проект в начальное состояние</a></li>
-                <li><a href="https://internet-shop.tmweb.ru/locale/en">en</a></li>
+                <li><a href="/basket">В корзину</a></li>
+                <li><a href="/reset">Сбросить проект в начальное состояние</a></li>
+                <li><a href="/locale/en">en</a></li>
 
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">₽<span class="caret"></span></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">₽<span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="https://internet-shop.tmweb.ru/currency/RUB">₽</a></li>
-                        <li><a href="https://internet-shop.tmweb.ru/currency/USD">$</a></li>
-                        <li><a href="https://internet-shop.tmweb.ru/currency/EUR">€</a></li>
+                        <li><a href="/currency/RUB">₽</a></li>
+                        <li><a href="/currency/USD">$</a></li>
+                        <li><a href="/currency/EUR">€</a></li>
                     </ul>
                 </li>
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="https://internet-shop.tmweb.ru/login">Войти</a></li>
+                <li><a href="/login">Войти</a></li>
 
             </ul>
         </div>
@@ -50,7 +50,7 @@
 <div class="container">
     <div class="starter-template">
         <div class="panel">
-            <a href="https://internet-shop.tmweb.ru/mobiles">
+            <a href="/mobiles">
                 <img src="http://internet-shop.tmweb.ru/storage/categories/mobile.jpg">
                 <h2>Мобильные телефоны</h2>
             </a>
@@ -59,7 +59,7 @@
             </p>
         </div>
         <div class="panel">
-            <a href="https://internet-shop.tmweb.ru/portable">
+            <a href="/portable">
                 <img src="http://internet-shop.tmweb.ru/storage/categories/portable.jpg">
                 <h2>Портативная техника</h2>
             </a>
@@ -68,7 +68,7 @@
             </p>
         </div>
         <div class="panel">
-            <a href="https://internet-shop.tmweb.ru/appliances">
+            <a href="/appliances">
                 <img src="http://internet-shop.tmweb.ru/storage/categories/appliance.jpg">
                 <h2>Бытовая техника</h2>
             </a>
