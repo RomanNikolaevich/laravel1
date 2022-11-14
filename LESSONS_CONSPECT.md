@@ -1,0 +1,313 @@
+Проблемы при первой установке:
+#1) После установки Laravel появилася варнинг:
+WARNING: The WWWGROUP variable is not set. Defaulting to a blank string.
+WARNING: The WWWUSER variable is not set. Defaulting to a blank string.
+#Лечится он добавлением строчек в файл .env и в .env.example:
+WWWGROUP=1000
+WWWUSER=1000
+#2)Столкнулся с проблемой миграции:
+1)Выдает ошибку:
+Illuminate\Database\QueryException
+SQLSTATE[HY000] [2002] No such file or directory (SQL: select * from information_schema.tables where table_schema = laravel_lessons and table_name = migrations and table_type = 'BASE TABLE')
+2)Для решения в php.ini раскоментил сточку:  extension=pdo_mysql НЕ помогло, стало ругаться еще и на "PHP Startup: Unable to load dynamic library 'pdo_mysql' ...."  - отменил
+3)Через IDE установил драйвер mysqli, тоже не помогло.
+4) Советовали еще вот это, тоже не помогло, установилось что-то но миграции не заработали: sudo apt-get install -y php-pdo-mysql
+5) Советовали использовать sail artisan migrate вместо php artisan migrate но это тоже не помогло
+6) Все решилось очень просто - изменил в файле.env строчку DB_HOST=mysql  на DB_HOST=127.0.0.1
+   Эти проблемы были вызвоны, потому что нужно было запускать сервере через sail up -d
+
+#Пинг локального соединения:
+ping localhost
+
+#Рабочий вариант установки Laravel:
+curl -s "https://laravel.build/example-app?with=mysql,redis" | bash
+
+
+#Запуск контейнеров Docker через Sail:
+В файл ~/.bashrc добавить строчку: alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
+Дальше запускаем в теминате только так: sail up -d
+Остановить: sail stop
+
+
+Урок №1 Установка, Настройка
+#Список команд artisan:
+php artisan
+
+В моем проекте добавляем сначала только 3 страницы(13:00):
+1) все товары,
+2) категории,
+3) страницу какого-то отдельного товара
+
+#Для смены главной страницы после установки нужно перейти в файл настройки роутера: файл routes/web.php
+#Аргументом функции view() в файле web.php является название шаблона из resourses/view/welcome.plade.php
+#Для изменения аргумента в роутере копируем роутер, прописываем новый аргумент test1 и создаем новый файл resourses/view/test1.plade.php
+
+
+Урок №2 Роутинг, Контроллеры
+#В прошлом уроке мы добавляли статичные страницы через функцию замыкания, но это плохая практика, так как лучше создавать классы контроллера и переносить все действия туда. Действия - это экшены. Контроллери - это обычный класс php, для его создания воспользеумся артисаном:
+php artisan make:controller MainController
+После этой команды создастся класс: /app/Http/Controllers/MainController.php
+
+#Столкнулся с ошибкой "Class "DOMDocument" not found". Решенние нашел установить компонент DOM:
+sudo apt-get install php-dom
+
+
+Урок №3 Работа с БД: Миграции, Модели
+#Для того, чтобы мы могли изменения в БД держать в GIT и чтобы другие их могли использовать мы их будем держать в классах.
+Примеры миграций расположены в папке: database/migration
+#Это обычные классы с методами up(запуск миграции) и down(откат миграции)
+
+#Миграция:
+php artisan migrate
+php artisan migrate:rollback (откат миграции)
+
+#Есть такое правило, что каждыцй раз когда вы делаете какие-то изменения в БД вам нужно будет создавать новую миграцию не в коем случае не трогая старую, если она уже в GIT, то есть если вы ее закомитили, то вы ее уже не трогаете.
+
+#Создание новой заготовки миграции для продуктов:
+php artisan make:migration create_products_table
+php artisan migrate
+
+#Теперь нам нужно создать новый класс, новая модель product(app/Models/Product.php]):
+php artisan make:model Product
+
+#Теперь нам нужно создать еще класс-модель и миграцию Category. Это можно сделать одной командой добавив флаг -m:
+php artisan make:model -m Category
+
+#Отменяем миграции - лектор что-то забыл:
+php artisan migrate:rollback
+
+#В миграции product и category выставляем поля:
+$table->id();
+$table->string('name');
+$table->string('code');
+$table->text('description')->nullable(); //возможно товар будет без описания
+$table->text('image')->nullable(); //возможно товар будет без описания
+$table->double('price')->default(0);//по умилчанию цена ноль
+$table->timestamps();
+В product добавляем еще строчку:
+$table->integer('category_id');
+
+#Дальше в таблице зполняем категории товаров, их названия, коды и описание.
+
+#B MainController в метод category добавляем строчку:
+Category::where('code', $category)->first();
+
+#Выводим название категории в коде category.blade.php:
+<h1>{{$category->name}}</h1>
+
+
+Урок №4 Мастер шаблон
+#Делаем мастершаблон master.blade.php - переносим общие для всех шаблонов части html из index.blade.php
+
+#В файле master.blade.php прописываем то что будем вставлять (основная часть страницы, которая будет различна):
+@yield('content')
+
+#В остальных шаблонах blade прописываем с первой строчки (во всех шаблонах, кроме master):
+@extends('master')
+@section('content')
+//контент страницы
+@endsection
+
+#Добавляем секцию заглавий для category.blade.php (без @endsection) - для каждого шаблона свой тайтл:
+@section('title', 'Категория '.$category->name)
+В master.blade.php в тафтл добавим ссылку:
+<title>Интернет Магазин: @yield('title')</title>
+
+#В @extends('') мы можем через запятую добавлять название для каждого шаблона:
+@extends('master', ['file'=>'index'])
+После чего мы можем это использовать в мастер шаблоне через переменную {{$file}}:
+<a class="navbar-brand" href="/">Интернет Магазин - {{ $file ?? '' }}</a>
+В нашем проекте это не нужно, но это может пригодится, а пока удаляем у себя.
+
+#Выносим отдельно карточку товара(07:50)
+#Создаем файл card.blade.php туда выносим с index.blade.php html код одного блока одного товара, а в index.blade.php, category.blade.php все товары удаляем, а их подтягиваем через @include('card'). Дальше в скобках можно добавить массив с переменной ['product'=>$product], но ее пока нет, поэтому добавлять не будем.
+
+#Если у нас изменятся категории, то придется в шаблоне categories.blade.php вносить изменения, а это не очень удобно, так как это нужно делать желательно только в роутере.  Поэтому дорабатываем наш роутер(web.php) (10:00)  так в каждой строчке добавляем имена:
+Route::get('/', [MainController::class, 'index']);
+Route::get('/', [MainController::class, 'index'])->name('index');
+
+#Добавляем шаблон карзины: /resourses/viwe/basket.blade.php (11:00):
+@extends('master')
+@section('title', 'Корзина')
+@section('content')
+//код из блока корзины
+@endsection
+
+#Добавляем в роутер web.php еще роут корзины:
+Route::get('/basket', [MainController::class, 'basket'])->name('basket');
+
+#Так же добавляем в класс MainController метод(экшин):
+public function basket():Factory|View|Application
+{
+return view('basket');
+}
+
+
+#Так же делаем возможность подтвердить заказ в корзине "Подтвердите заказ": /basket/place (12:20). Создаем order.blade.php, создаем  еще маршрут и вносим изменения в класс MainController.
+Route::get('/basket/place', [MainController::class, 'basketPlace'])->name('basket-place');
+
+    public function basketPlace():Factory|View|Application
+    {
+        return view('order');
+    }
+
+#Теперь у нас 6 маршрутов, но как их посмотреть если их не 6, а гораздо больше? (14:00) (в уроке используется локальный php, а мы используем оболочку laravel над doker, поэтому используем только sail первым словом в команде!!!)
+sail artisan route:list
+
+#В master.blade.php меняем ссылки вместо "/"(переход на главную) прописываем {{ route('index') }} и так далее со всеми ссылками.
+
+#Настраиваем категории - у каждой категории свой URI - в categories.blade.php меняем ссылку(16:50):
+<a href="/{{ $category->code}}">
+на:
+<a href="{{route('category', $category->code)}}">
+
+#B web.php меняем роутер продуктов с указанием категории(18:00):
+Route::get('/{category}/{product?}', [MainController::class, 'product'])->name('product');
+В классе MainController в методе product добавляем еще один параметр $category:
+public function product($category, $product = null):Factory|View|Application
+{
+return view('product', ['product' => $product]); //второй вариант передачи параметров
+}
+В шаблоне card.blade.php изменяем ссылку на короткий адресс к корзине:
+{{ route('basket') }}
+В шаблон категории изменяем в @include('card') ссылку на переменную $category:
+@include('card', ['category' => $category])
+
+
+#В шаблоне card так же можно вывести ссылку на название категории товара:
+@isset($category)
+{{ $category->name }}
+@endisset
+
+
+Урок №5 Eloquent связи                
+#Добавляем товары в БД в таблицу products. Для импорта чужой таблицы нужно в IDE в правом верхнем углу нажать на кнопку колнсоль и выбрать Open default console. Затем в этом окне вставить запрос с INSERT, нажать на зеленый треугольник и если нет ошибок предложит импортировать поля в новую таблицу или выбрать из чуществующих. После обновить и проверить правильно ли внеслось.
+
+#Добавляем все наши товары из БД на главную страницу. В классе MainController в методе index добавляем $products, которой присваиваем значение из запроса, берем все товары Product::get (Alt+Enter - импортировать класс) и затем его передаем в строчке return с помощью compacts:
+public function index():Factory|View|Application
+{
+$products = Product::get();
+return view('index', compact('products'));
+}
+Дальше мы его обрабатываем в шаблоне index.blade.php(для того чтобы быстро найти файл по названию используем двойнок клик Shift):
+@foreach($products as $product)
+@include('card', compact('product'))
+@endforeach
+Теперь переходим в шаблон card.blade.php, где можем эту переменную продукт отобразить - название <h3>iPhone X 64GB</h3> заменяем на:
+<h3>{{ $product->name }}</h3>
+Так же меняем и строчку с ценой на : <p>{{ $product->price }} ₽</p>
+Теперь все товары из БД вывелись, только фото у всех осталось одно как было в шаблоне.
+
+#Теперь нужно сделать, чтобы категория также отображалась и на главной в описании каждого товара. В БД категория реализована через параметр 'category_id'. Чтобы не нагружать наш контроллер мы идем в нашу модель продукт (класс App\Models\Product) и добавляем публичный метод getCategory():
+public function getCategory()
+{
+$category = Category::where('id', $this->category_id)->get();//через where отображаем все записи
+dd($category); //распечатываем переменную
+}
+Так же теперь используем функцию getCategory() в шаблоне card.blade.php:
+{{ $product->getCategory() }}
+Через dd мы видим что передался многомерный массив (Collection - коллекция), чтобы получить только один экземпляр мы можем использовать вместо функции get() функцию first()- так мы сразу получаем категорию, с которой удобней работать:
+$category = Category::where('id', $this->category_id)->first();
+На самом деле будет еще удобнее, если сменить first() на find() в которой и передадим 'category_id':
+$category = Category::find($this->category_id); //результат такой же
+Дальше нам нужно просто вернуть, что появилось:
+return Category::find($this->category_id);
+И теперь в карточке товара (шаблон card) мы можем дальше использовать ->name:
+ <p>{{ $product->getCategory()->name }}</p>
+ Теперь в кажом товаре на главной отображается его категория, а эту конструкцию можно удалить:
+        @isset($category)
+             {{ $category->name }}
+        @endisset
+
+#Дальше выводим в категории только те товары, которые относятся к этой категории(04:30). Для этого переходим в MainController, где добавляем для метода category() переменную products(как в методе index):
+public function category($code): Factory|View|Application
+{
+$category = Category::where('code', $code)->first();
+$products = Product::get();
+return view('category', compact('category', 'products'));
+}
+И в самом представлении категория(шаблон category) вместо строчки:
+@include('card', ['category' => $category])
+обрабатываем как в шаблоне index(вставляем блок):
+@foreach($products as $product)
+@include('card', compact('product'))
+@endforeach
+После этого на каждой странице категории выводятся все товары (не зависимо от категории).
+
+#Теперь будем фильтровать(05:30). Для этого в Меинконтролере в методе продукт внесем измененияв строчке:
+$products = Product::get(); //выводить все продукты
+$products = Product::where('category_id', $category->id)->get();//теперь выводятся только нужные!!!
+
+#Теперь у нас все работает, но исполняется принцип единства ответственности. Наш контроллер выходит немного перегруженным. Чтобы этого небыло мы должны использовать связи. Для этого мы переходим в модель Product, где мы пропишем функцию категория, которая должна вернуть только одну категорию и так как у нас есть продукт, который относится к категории, то мы используем belongsTo(), в которой мы указываем продукт:
+public function category()
+{
+return $this->belongsTo(Category::class);
+}
+Чтобы дальше эту функцию использовать мы идем в шаблон карточки и здесь мы заменяем:
+{{ $product->getCategory()->name }}
+на:
+{{ $product->category->name }}
+Если мы захотим использовать вот таким образом:
+{{ $product->category()->name }}
+то это будет уже Query Builder(у меня так не сработал - ошибка)
+Теперь метод getCategory() можно удалить, он не нужен.
+
+#Дальше нам нужно добавить зависимость от категории к товарам(08:22). Для этого в классе Category создаем публичный метод products(), в котором возвращаем функцию hasMany() - связи ко многим:
+public function products()
+{
+return $this->hasMany(Product::class);
+}
+Теперь нашу связь мы можем использовать в шаблоне категория, где в цикле изменяем:
+@foreach($products as $product)
+на: @foreach($category->products as $product)
+Так как $products мы теперь не используем, то можем из MainController из метода category строчку с переменой $products удалить, теперь этот метод будет выглядеть так:
+public function category($code): Factory|View|Application
+{
+$category = Category::where('code', $code)->first();
+return view('category', compact('category'));
+}
+
+#Выводим подсчет количества товаров в категории(10:00) используя теже самые связи - переходим в шаблон category, где в строчку: {{$category->name}} добавляем вызов категории с встроенной функцией count():
+{{$category->name}} {{$category->products->count()}}// получаем "Мобильные телефоны 4"
+
+#Прописываем ссылку на товар в шаблоне card. Для этого изменяем нашу ссылку:
+<a href="/mobiles/iphone_x_64" class="btn btn-default" role="button">Подробнее</a>
+на новый роут:
+<a href="{{ route('product',[$product->category->code, $product->code]) }}"
+class="btn btn-default" role="button">Подробнее</a>
+
+
+Урок №6 Многие-ко-многим, Сессия
+#Следующее, что нам нужно сделать - реализовать корзину и заказ. Это мы будем делать через одну модель. Создаем новый класс Order вместе с миграцией:
+sail artisan make:model -m Order
+
+#Редактируем воля в нашей миграции: /database/migration
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
