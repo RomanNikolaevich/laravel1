@@ -17,11 +17,11 @@
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="https://internet-shop.tmweb.ru">Интернет Магазин</a>
+            <a class="navbar-brand" href="/">Интернет Магазин</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="https://internet-shop.tmweb.ru">Все товары</a></li>
+                <li class="active"><a href="/">Все товары</a></li>
                 <li><a href="/categories">Категории</a>
                 </li>
                 <li><a href="/basket">В корзину</a></li>
@@ -50,7 +50,7 @@
 <div class="container">
     <div class="starter-template">
         <h1>Все товары</h1>
-        <form method="GET" action="https://internet-shop.tmweb.ru">
+        <form method="GET" action="/">
             <div class="filters row">
                 <div class="col-sm-6 col-md-3">
                     <label for="price_from">Цена от <input type="text" name="price_from" id="price_from" size="6"
@@ -73,7 +73,7 @@
                 </div>
                 <div class="col-sm-6 col-md-3">
                     <button type="submit" class="btn btn-primary">Фильтр</button>
-                    <a href="https://internet-shop.tmweb.ru" class="btn btn-warning">Сброс</a>
+                    <a href="/" class="btn btn-warning">Сброс</a>
                 </div>
             </div>
         </form>
