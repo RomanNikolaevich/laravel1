@@ -26,8 +26,7 @@ class MainController extends Controller
     public function category($code): Factory|View|Application
     {
         $category = Category::where('code', $code)->first();
-        $products = Product::get();
-        return view('category', compact('category', 'products'));
+        return view('category', compact('category'));
     }
 
     public function product($category, $product = null):Factory|View|Application//означает, что свойство не обязательное
