@@ -350,18 +350,70 @@ sail artisan make:migration create_order_product_table
     sail artisan make:controller BasketController
 Убираем из MainController методы basket() и basketPlace() в новый класс BasketController.
 Добавляем так же информацию в роутер web.php:
-Route::get('/basket', [MainController::class, 'basket'])->name('basket');
-Route::get('/basket/place', [MainController::class, 'basketPlace'])->name('basket-place');
+    Route::get('/basket', [MainController::class, 'basket'])->name('basket');
+    Route::get('/basket/place', [MainController::class, 'basketPlace'])->name('basket-place');
 меняем на:
-Route::get('/basket', [BasketController::class, 'basket'])->name('basket');
-Route::get('/basket/place', [BasketController::class, 'basketPlace'])->name('basket-place');
-#
-#
-#
-#
-#
-#
-#
+    Route::get('/basket', [BasketController::class, 'basket'])->name('basket');
+    Route::get('/basket/place', [BasketController::class, 'basketPlace'])->name('basket-place');
+
+#Дальше нам нужно сделать маршрут, который будет отвечать за добавление товара(05:00) в web.php методом POST, так как
+все что мы изменяем мы испольуем метод POST(http метод):
+Route::post('/basket/add/{id}', [BasketController::class, 'basketAdd'])->name('basket-add'); //id - идентификатор продукта
+
+#Чтобы воспользоваться этим методом мы идем в карточку товара(card) и делаем из ссылки форму:
+    <form action="{{ route('basket-add', $product) }}" method="POST">...
+Идентификатор у переменной продукт можно не указывать($product->id).
+
+#Пробуем добавить товар в корзину - выдает 419 ошибку(используется в качестве альтернативы коду 401, которые прошли проверку
+ подлинности, но лишены доступа к определенным ресурсам сервера. Обычно код отдается, если CSRF-токен устарел или оказался
+ некорректным.). Для того, чтобы убрать эту ошибку, нужно добавить csrf-токен(под токеном имеется в виду случайный набор
+ байт, который сервер передает клиенту, а клиент возвращает серверу).Чтобы его добавить мы можем воспользоваться директивой
+ блейда
+    @csrf
+эта команда генерирует скрытый инпут со случайным токеном, такого образца:
+    <input type="hidden" name="_token" value="A6RKV8btdJu2SrcengeSw9JserC4AVdI9iX0TPxS">
+
+#Теперь нам осталось добавить еще один метод, котрый будет отвечать за добавление товаров в корзину в классе BasketController.
+Для того чтобы добавлять товары нам нужна сессия - в Laravel ее создает встроенный хелпер session(). А для того, чтобы
+достать что-то из сессии мы будем использовать аргумент 'orderId':
+    public function basketAdd($productId)
+    {
+        $orderId = session('orderId');
+        if (is_null($orderId)) { //если нет сессии создаем ее
+            $order = Order::create()->id;
+            session(['orderId' => $order->id]);
+        } else {
+            $order = Order::find($orderId); //если есть находим
+        }
+        $order->products()->attach($productId); //добавляем товар в корзину, используем нашу связь.
+
+        return view('basket', compact('order'));
+    }
+Проверяем в базе товары появляются при нажатии на корзину.
+Вносим изменения так же в метод basket():
+    public function basket():Factory|View|Application
+    {
+        $orderId = session('orderId');
+        if (!is_null($orderId)) {
+        $order = Order::findOfFail($orderId);
+        }
+        return view('basket');
+    }
+
+#Теперь нам нужно перейти в представление/шаблон basket.blade.php и добавить обработку наших товаров:
+    @foreach($order->products as $product)
+        //сюда размещаем блок товара
+    @endforeach
+
+#В роутере web.php строчка роутером 'basket' должна быть выше расположена, чем роутер 'category'!!! Иначе ошибка.
+
+#Добавляем роут к правильным ссылкам в корзине:
+ <a href="{{ route('product', [$product->category->code, $product->code]) }}">
+так же заменяем ссылку:
+    /basket/add/1
+на:
+    <form action="{{ route('basket-add', $product) }}" method="POST">
+добавляем @csrf токен
 #
 #
 #

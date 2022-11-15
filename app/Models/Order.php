@@ -9,6 +9,11 @@ class Order extends Model
 {
     use HasFactory;
 
+/*    public static function create()
+    {
+        //todo
+    }*/
+
     public function products()
     {
         return $this->belongsToMany(Product::class);
