@@ -34,13 +34,5 @@ class MainController extends Controller
         return view('product', ['product' => $product]); //второй вариант передачи параметров
     }
 
-    public function basket():Factory|View|Application
-    {
-        return view('basket');
-    }
 
-    public function basketPlace():Factory|View|Application
-    {
-        return view('order');
-    }
 }
