@@ -14,10 +14,9 @@ class BasketController extends Controller
     {
         $orderId = session('orderId');
         if (!is_null($orderId)) {
-        $order = Order::findOfFail($orderId);
+            $order = Order::findOrFail($orderId);
         }
-
-        return view('basket');
+        return view('basket', compact('order'));
     }
 
     public function basketPlace():Factory|View|Application
@@ -25,7 +24,7 @@ class BasketController extends Controller
         return view('order');
     }
 
-    public function basketAdd($productId)
+    public function basketAdd($productId):Factory|View|Application
     {
         $orderId = session('orderId');
         if (is_null($orderId)) { //если нет сессии создаем ее
@@ -37,5 +36,17 @@ class BasketController extends Controller
         $order->products()->attach($productId); //добавляем товар в корзину, используем нашу связь.
 
         return view('basket', compact('order'));
+    }
+
+    public function basketRemove($productId):Factory|View|Application
+    {
+        $orderId = session('orderId');
+        if (is_null($orderId)) {
+            return view('basket', compact('order'));
+        }
+        $order = Order::find($orderId);
+        $order->products()->detach($productId);
+        return view('basket', compact('order'));
+
     }
 }
