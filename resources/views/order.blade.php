@@ -36,8 +36,6 @@
                             </div>
                         </div>
                         <br>
-                        <input type="hidden" name="_token" value="BFSq4wXl7aaaYPBNnpHPwTCVVlbLnRHkhOZyLYTT"> <input
-                            type="submit" class="btn btn-success" value="Подтвердите заказ">
                     </div>
                 </form>
             </div>

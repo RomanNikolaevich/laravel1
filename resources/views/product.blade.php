@@ -11,7 +11,6 @@
         <form action="/basket/add/1" method="POST">
             <button type="submit" class="btn btn-success" role="button">Добавить в корзину</button>
 
-            <input type="hidden" name="_token" value="fqEtDZx1kY6T92SyQLXWHeKisVGeC9SWDZcrfOOO">
         </form>
     </div>
 @endsection
