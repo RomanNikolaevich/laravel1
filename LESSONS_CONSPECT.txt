@@ -419,16 +419,80 @@ Route::post('/basket/add/{id}', [BasketController::class, 'basketAdd'])->name('b
 Урок №7 Pivot table
 #Добавляем маршрут для удаления товаров из корзины. Добавляем роут в web.php:
 Route::post('/basket/remove/{id}', [BasketController::class, 'basketRemove'])->name('basket-remove');
-Изменяем роут в basket.blade.php:
 
-#
-#
-#
-#
-#
-#
-#
-#
+#Изменяем роут в basket.blade.php:
+    <form action="{{ route('basket-remove', $product) }}" method="POST">
+        <button type="submit" class="btn btn-danger" href=""><span
+                class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>
+        @csrf
+    </form>
+
+#В BasketController добавляем метод удаления из корзины:
+    public function basketRemove($productId):RedirectResponse
+    {
+        $orderId = session('orderId');
+        if (is_null($orderId)) {
+            return redirect()->route('basket');
+        }
+        $order = Order::find($orderId);
+        $order->products()->detach($productId);//удалям продукт
+        return redirect()->route('basket');
+    }
+
+#Чтобы при обновлении страницы не добавляло новый товар - в функцию basketAdd добавим редирект на другой маршрут:
+return redirect()->route('basket');
+А эту строчку удаляем:
+return view('basket', compact('order'));
+
+#Теперь нам нужно реализовать количество добавляемого товара, чтобы не новой строчкой одинаковый товар добавлялся,
+а изменялась цифра-количество товаров. Для этого нам нужно добавить миграцию (добавим еще одно поле в таблицу через
+update). Миграция с таким же именем уже была создана ранее, записана в таблицу и если ее откатить для внесения изменений,
+то мы потеряем в таблице все наши данные.
+sail artisan make:migration update_order_product_table
+Далее копируем из предыдущей миграци с таким же именем поля метода up():
+     Schema::table('order_product', function (Blueprint $table) { //только вместо Schema::table...
+         $table->integer('count')->default(1); //добавляем новое поле
+     });
+И в методе down() добавляем:
+    Schema::table('order_product', function (Blueprint $table) {
+        $table->dropColumn('count');
+    });
+#Запускаем миграцию:
+    sail artisan migrate
+После этого замечаем, что лучше было бы указать место расположения нового поля:
+    $table->integer('count')->default(1)->after('product_id');
+Для внесения изменений в таблице нам придется откатить последнее изменение:
+    sail artisan migrate:rollback --step=1
+Затем снова миграцию делаем:
+    sail artisan migrate
+
+#Теперь нам нужно этот count заставить работать. Для этого в Order.php добавляем возможность достучаться до поля count:
+    return $this->belongsToMany(Product::class)->withPivot('count');
+
+#Теперь нужно к контиролере корзины добавить при добавлении проверку если у нас уже такой товар:
+        if ($order->products->contains($productId)) {//если товар есть в корзине:
+            $pivotRow = $order->products()->where('product_id', $productId)->first()->pivot;
+            $pivotRow->count++;//увеличивает attributes-count на 1
+            $pivotRow->update();//обновляем в БД
+            dd($pivotRow);//проверка вывода
+        } else {//если товара нет в корзине:
+            $order->products()->attach($productId); //добавляем товар в корзину, используем нашу связь.
+        }
+
+#Теперь нам то же самое нужно проделать с удалением товара:
+        if ($order->products->contains($productId)) {
+            $pivotRow = $order->products()->where('product_id', $productId)->first()->pivot;
+            if ($pivotRow->count < 2) { //если 1 или 0
+                $order->products()->detach($productId);//удалям продукт
+            } else {
+                $pivotRow->count--;//уменьшаем attributes-count на 1
+                $pivotRow->update();//обновляем в БД
+            }
+        }
+
+#В шаблон basket добавляем отображение изменения количчества товаров (из БД) (13:15):
+    {{ $product->pivot->count }}
+
 #
 #
 #
