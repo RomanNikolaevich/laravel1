@@ -38,13 +38,13 @@
                                 </form>
                             </div>
                         </td>
-                        <td>{{ $product->price }} </td>
-                        <td>{{ $product->price }} </td>
+                        <td>{{ $product->price}} </td>
+                        <td>{{ $product->getPriceForCount()}} </td>
                     </tr>
                 @endforeach
                     <tr>
                         <td colspan="3">Общая стоимость:</td>
-                        <td>{{ $product->price ?? ''}} </td>
+                        <td>{{ $order->getFullPrice()}} </td>
                     </tr>
 
 

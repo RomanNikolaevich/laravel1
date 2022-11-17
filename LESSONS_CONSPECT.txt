@@ -493,9 +493,28 @@ sail artisan make:migration update_order_product_table
 #В шаблон basket добавляем отображение изменения количчества товаров (из БД) (13:15):
     {{ $product->pivot->count }}
 
-#
-#
-#
+#Добавляем общую сумму покупок. Для этого в классе Product добавляем новый метод:
+    public function getPriceCount($count)
+    {
+        return $this->price * $count;
+    }
+Добавляем вывод в шаблон корзины - вместо:
+    {{ $product->price }}
+Пишем:
+    {{ $product->getPriceCount($product->pivot->count) }}
+
+#Добавляем подсчет стоимости всех товаров в корзине, для этого в классе Order.php добавляем метод:
+    public function getFullPrice():int | float
+    {
+        $sum = 0;
+        foreach ($this->products as $product) {
+            $sum += $product->getPriceForCount();
+        }
+        return $sum;
+    }
+
+#Выводим общую сумму в basket.blade.php:
+
 #
 #
 #

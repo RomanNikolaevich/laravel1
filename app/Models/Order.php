@@ -14,4 +14,13 @@ class Order extends Model
     {
         return $this->belongsToMany(Product::class)->withPivot('count')->withTimestamps();
     }
+
+    public function getFullPrice():int | float
+    {
+        $sum = 0;
+        foreach ($this->products as $product) {
+            $sum += $product->getPriceForCount();
+        }
+        return $sum;
+    }
 }
