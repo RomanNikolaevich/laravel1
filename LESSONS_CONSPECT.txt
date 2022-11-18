@@ -640,11 +640,27 @@ BasketController теперь станет немного чище:
         session()->flash('warning', 'Удален товар '. $product->name);
 
 
+Урок №9 Авторизация, Регистрация
 
+#Добаление административной панели.
 
-#
-#
-#
+#В уроках используется Laravel 6 и там аутентификация встроена, для поздних версий (у меня 9я) нужно устанавливать:
+composer require laravel/ui
+
+#У меня сразу не получилось установить выдало ошибку. Помогло вот это:
+    > sudo apt-get install php-curl
+    > sudo apt-get install php-mbstring
+#for every missing extension. Then:
+    > sudo apt-get update
+#and finally (in the project's root folder):
+    > composer install
+
+Дальше:
+    composer require laravel/ui
+    composer dump-autoload
+    sail artisan optimize
+    sail artisan ui:auth
+Теперь в /app/Http/Controllers/Auth папка с файлами появилась, как в уроке.
 #
 #
 #

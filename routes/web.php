@@ -13,3 +13,7 @@ Route::post('/basket/remove/{id}', [BasketController::class, 'basketRemove'])->n
 Route::post('/basket/place', [BasketController::class, 'basketConfirm'])->name('basket-confirm');
 Route::get('/{category}', [MainController::class, 'category'])->name('category');
 Route::get('/{category}/{product?}', [MainController::class, 'product'])->name('product');//? означает, что этот параметр не обязательный
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
