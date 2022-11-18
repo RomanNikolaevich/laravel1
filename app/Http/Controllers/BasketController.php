@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -18,6 +19,7 @@ class BasketController extends Controller
             return \view('empty');
         } else {
             $order = Order::findOrFail($orderId);
+
             return view('basket', compact('order'));
         }
         //return view('basket', compact('order'));
@@ -30,12 +32,24 @@ class BasketController extends Controller
             return redirect()->route('index'); //возвращаем на главную
         }
         $order = Order::find($orderId);
+
         return view('order', compact('order'));
     }
 
-    public function basketConfirm()
+    public function basketConfirm(Request $request):RedirectResponse
     {
-
+        $orderId = session('orderId');
+        if (is_null($orderId)) { //если нет сессии создаем ее
+            return redirect()->route('index'); //возвращаем на главную
+        }
+        $order = Order::find($orderId); //если есть находим
+        $success = $order->saveOrder($request->name, $request->phone);
+        if ($success) {
+            session()->flash('success', 'Ваш заказ принят в обработку');
+        } else {
+            session()->flash('warning', 'Случилась ошибка');
+        }
+        return redirect()->route('index'); //возвращаем на главную
     }
 
     public function basketAdd($productId):RedirectResponse
@@ -55,9 +69,9 @@ class BasketController extends Controller
         } else {//если товара нет в корзине:
             $order->products()->attach($productId); //добавляем товар в корзину, используем нашу связь.
         }
-
+        $product = Product::find($productId);//находим товар
+        session()->flash('success', 'Добавлен товар '. $product->name);
         return redirect()->route('basket');
-
     }
 
     public function basketRemove($productId):RedirectResponse
@@ -77,7 +91,8 @@ class BasketController extends Controller
                 $pivotRow->update();//обновляем в БД
             }
         }
-
+        $product = Product::find($productId);//находим товар
+        session()->flash('warning', 'Удален товар '. $product->name);
         return redirect()->route('basket');
     }
 }

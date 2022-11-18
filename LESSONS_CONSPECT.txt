@@ -551,16 +551,97 @@ Route::post('/basket/place', [BasketController::class, 'basketConfirm'])->name('
     {
 
     }
+При переходе по кнопке "Подтвердите заказ" страница одновляется, но получаем пустую страницу, так как метод еще не реализован.
 
 #В папке с шаблонами (/resourses/views) нужно навести порядок и сложить некоторые швблоны в новую подпапку layouts,
-после туда перемещаем master.blade.php
-#
-#
-#
-#
-#
-#
-#
+после туда перемещаем master.blade.php, card.blade.php
+
+#В product.blade.php так же часто повторяется блок <div class="starter-template">, поэтому мы его тоже вынесем в
+master.blade.php:
+    <div class="starter-template">
+        @yield('content')
+    </div>
+И в каждом из шаблонов соответственно этот блок нужно убрать, чтобы небыло дублей.
+
+#Добавляем логику сохранения в БД в метод basketConfirm():
+    public function basketConfirm(Request $request):RedirectResponse
+    {
+        $orderId = session('orderId');
+        if (is_null($orderId)) { //если нет сессии создаем ее
+            return redirect()->route('index'); //возвращаем на главную
+        }
+        $order = Order::find($orderId); //если есть находим
+        $order->name = $request->name;
+        $order->phone = $request->phone;
+        $order->status = 1; //изменяем статус в БД с 0 до 1
+        $order->save();
+        //dd($request->all());//выводит всю информацию о заказчике
+        //dd($request->name);//выводит ФИО заказчика
+        session()->forget('orderId');//убираем из сессии и передаем ключ, по которому должен забыть переменную
+        return redirect()->route('index'); //возвращаем на главную
+    }
+Теперь если нажимаем подтвердить заказ - в таблице 'orders' у заказа появляется статус и данные о заказчике.
+
+#Все работает, но нужна оптимизация - слишком много логики для контролера, поэтому часть кода переносим в модель
+в класс Order заменив переменную $order на $this, с реквестом мы тоже тут не будем работать, поэтому в метод передадим
+имя и телефон:
+    public function saveOrder($name, $phone)
+    {
+        if ($this->status == 0) {
+            $this->name = $name;
+            $this->phone = $phone;
+            $this->status = 1; //изменяем статус в БД с 0 до 1
+            $this->save();
+            session()->forget('orderId');//убираем из сессии и передаем ключ, по которому должен забыть переменную
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+BasketController теперь станет немного чище:
+    public function basketConfirm(Request $request):RedirectResponse
+    {
+        $orderId = session('orderId');
+        if (is_null($orderId)) { //если нет сессии создаем ее
+            return redirect()->route('index'); //возвращаем на главную
+        }
+        $order = Order::find($orderId); //если есть находим
+        $success = $order->saveOrder($request->name, $request->phone);
+        return redirect()->route('index'); //возвращаем на главную
+    }
+
+#Функционал сообщенией "Ваше товар добавлен в корзину", "Ваш заказа отправлен в обработку" реализован с помощью
+ Flash(13:30). То есть это часть функционала сессии, такие переменные внутри сессии, которые после первого отображения
+ позволяет их автоматически удалять. Флеш в Laravel реализован с помощью функции flash() - в BasketController добавим:
+        if ($success) {
+            session()->flash('success', 'Ваш заказ принят в обработку');
+        } else {
+            session()->flash('warning', 'Случилась ошибка');
+        }
+
+#Для отображения вывода flash добавления (зеленая расцветка)переходим в master.blade.php:
+        @if(session()->has('success'))// условие для вывода flash сообщения
+        <p class="alert alert-success">{{ session()->get('success') }}</p>// вывод flash сообщения
+        @endif
+        @yield('content')
+
+#В BasketController в методе basketAdd() добавим отображение сообщения об добавлении товара в корзину:
+        $product = Product::find($productId);//находим товар
+        session()->flash('success', 'Добавлен товар '. $product->name);
+
+#Для отображения вывода flash удаления (желтая расцветка)переходим в master.blade.php:
+        @if(session()->has('warning'))
+            <p class="alert alert-warning">{{ session()->get('warning') }}</p>
+        @endif
+
+#В BasketController в методе basketRemove() добавляем сообщение об удалении товара из корзины:
+        $product = Product::find($productId);//находим товар
+        session()->flash('warning', 'Удален товар '. $product->name);
+
+
+
+
 #
 #
 #
