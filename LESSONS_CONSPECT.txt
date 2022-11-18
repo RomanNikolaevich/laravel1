@@ -661,9 +661,21 @@ composer require laravel/ui
     sail artisan optimize
     sail artisan ui:auth
 Теперь в /app/Http/Controllers/Auth папка с файлами появилась, как в уроке.
-#
-#
-#
+Дальше создаем шаблоны авторизации:
+    sail artisan ui vue --auth
+
+
+#После установки в web.php появился новый роут:
+    Auth::routes();
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+в web.php в самый вверх прописать:
+    use Illuminate\Support\Facades\Auth;
+
+#Чтобы посмотреть, что нового добавилось нужно ввести(покажет новые маршруты):
+    sail artisan route:list
+
+#Как посомтреть какие маршруты у нас зарегистрированы - переходим к файлу Router.php(Shift два раза кликнуть), таких
+файла два, выбираем того, что для Laravel.
 #
 #
 #
