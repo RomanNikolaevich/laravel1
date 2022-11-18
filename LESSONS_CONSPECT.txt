@@ -28,7 +28,7 @@ ping localhost
 
 #Запуск контейнеров Docker через Sail:
 В файл ~/.bashrc добавить строчку: alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
-Дальше запускаем в теминате только так: sail up -d
+Дальше запускаем в терминале только так: sail up -d
 Остановить: sail stop
 
 
@@ -514,15 +514,46 @@ sail artisan make:migration update_order_product_table
     }
 
 #Выводим общую сумму в basket.blade.php:
+{{ $order->getFullPrice()}}
 
-#
-#
-#
-#
-#
-#
-#
-#
+Урок №8 Request, Flash
+
+#Доделываем нашу корзину заказов и делаем, чтобы заказ был полностью оформлен.
+
+#Добавляем переход на страницу заказа. Для этого из роутера (web.php) берем basket-place и прописываем путь в basket.blade.php
+вместо href="/basket/place"> прописываем  роут:
+href="{{ route('basket-place') }}"
+
+#В order.blade.php не верно выводится общая сумма - нужно поправить. Для этого переходим в BasketController и правим метод
+basketPlace():
+    public function basketPlace()
+    {
+        $orderId = session('orderId');
+        if (is_null($orderId)) {
+            return redirect()->route('index'); //возвращаем на главную
+        }
+        $order = Order::find($orderId);
+        return view('order', compact('order'));
+    }
+И в order.blade.php добавляем общую цену:
+{{ $order->getFullPrice()}} грн.
+
+#Теперь нам нужно, чтобы эта кнопка вела туда, где будет сохранен наш заказ. В web.php добавляем еще один роут:
+Route::post('/basket/place', [BasketController::class, 'basketConfirm'])->name('basket-confirm');
+
+#В order.blade.php добавляем роут в экшин формы:
+<form action="{{ route('basket-confirm') }}" method="POST">
+
+#Добавляем @csrf токен в форму перед кнопкой
+
+#B BasketController теперь нужно реализовать новый метод из web.php basketConfirm():
+    public function basketConfirm()
+    {
+
+    }
+
+#В папке с шаблонами (/resourses/views) нужно навести порядок и сложить некоторые швблоны в новую подпапку layouts,
+после туда перемещаем master.blade.php
 #
 #
 #

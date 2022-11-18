@@ -1,4 +1,4 @@
-@extends('master')
+@extends('layouts.master')
 @section('title', 'Категория '.$category->name)
 @section('content')
     <div class="starter-template">

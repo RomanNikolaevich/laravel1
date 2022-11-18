@@ -1,4 +1,4 @@
-@extends('master')
+@extends('layouts.master')
 @section('title', 'Корзина')
 @section('content')
     <div class="starter-template">
@@ -38,21 +38,21 @@
                                 </form>
                             </div>
                         </td>
-                        <td>{{ $product->price}} </td>
-                        <td>{{ $product->getPriceForCount()}} </td>
+                        <td>{{ $product->price}} грн.</td>
+                        <td>{{ $product->getPriceForCount()}} грн.</td>
                     </tr>
                 @endforeach
-                    <tr>
-                        <td colspan="3">Общая стоимость:</td>
-                        <td>{{ $order->getFullPrice()}} </td>
-                    </tr>
+                <tr>
+                    <td colspan="3">Общая стоимость:</td>
+                    <td>{{ $order->getFullPrice()}} грн</td>
+                </tr>
 
 
                 </tbody>
             </table>
             <br>
             <div class="btn-group pull-right" role="group">
-                <a type="button" class="btn btn-success" href="/basket/place">Оформить
+                <a type="button" class="btn btn-success" href="{{ route('basket-place') }}">Оформить
                     заказ</a>
             </div>
         </div>

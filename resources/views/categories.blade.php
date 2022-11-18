@@ -1,4 +1,4 @@
-@extends('master')
+@extends('layouts.master')
 @section('title', 'Все категории товаров')
 @section('content')
     <div class="starter-template">

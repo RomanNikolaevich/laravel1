@@ -23,9 +23,19 @@ class BasketController extends Controller
         //return view('basket', compact('order'));
     }
 
-    public function basketPlace():Factory|View|Application
+    public function basketPlace():View|Factory|RedirectResponse|Application
     {
-        return view('order');
+        $orderId = session('orderId');
+        if (is_null($orderId)) {
+            return redirect()->route('index'); //возвращаем на главную
+        }
+        $order = Order::find($orderId);
+        return view('order', compact('order'));
+    }
+
+    public function basketConfirm()
+    {
+
     }
 
     public function basketAdd($productId):RedirectResponse
