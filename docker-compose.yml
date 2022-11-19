@@ -21,7 +21,8 @@ services:
         volumes:
             - '.:/var/www/html'
         networks:
-            - sail
+            sail:
+                ipv4_address: 172.20.0.6
         depends_on:
             - mysql
             - redis
@@ -60,6 +61,9 @@ services:
 networks:
     sail:
         driver: bridge
+        ipam:
+            config:
+                - subnet: 172.20.0.0/24
 volumes:
     sail-mysql:
         driver: local
