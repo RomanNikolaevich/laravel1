@@ -676,16 +676,60 @@ composer require laravel/ui
 
 #Как посомтреть какие маршруты у нас зарегистрированы - переходим к файлу Router.php(Shift два раза кликнуть), таких
 файла два, выбираем того, что для Laravel.
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
+
+#В web.php добавляем строчки (обрезаем неиспользуемые параметры):
+Auth::routes([
+    'reset' => false,
+    'confirm' => false,
+    'verify' => false,
+]);
+
+#В папку /resources/view/auth добавляем файлы login.blade.php, register.blade.php, а содержание берем из html
+кода оригинального сайта.
+
+#Название для шаблонов берем из трейтов AuthenticatesUsers ('login') и RegistersUsers ('register')
+
+#Добавляем /layouts/master.blade.php  - шаблон для аутентификации, чтобы не повторялись поля в коде.
+меняем: <title>Админка: Регистрация</title>
+на: <title>Админка: @yield('title')</title>
+меняем: <div class="card-header">Регистрация</div>
+на: @yield('title')
+Удаляем уникальные для разных страниц блоки, остается общий шаблон. Вместо уникального контента пишем:
+@yield('content')
+
+#В login.blade.php, register.blade.php оставляем только уникальный контент между скриптом:
+@extends('auth.layouts.master')//расположение master шаблона
+@section('title', 'Авторизация')//или 'Регистрация'
+    @section('content')
+        //форма регистрации/логина
+    @endsection
+
+#Добавляем роуты в master.blade.php:
+<a class="nav-link" href="{{ route('login') }}">Войти</a>
+<a class="nav-link" href="{{ route('register') }}">Зарегистрироваться</a>
+
+В шаблон register:
+<form method="POST" action="{{ route('register') }}" aria-label="Register">
+
+#В роутер добавляем :
+    use App\Http\Controllers\Auth\LoginController;
+прописываем путь и назначаем имя как будем называть:
+    Route::get('/logout', [LoginController::class, 'logout'])->name('get-logout');
+
+#В основной мастер шаблон добавляем в верхнее меню ссылку входа/выхода:
+    @guest()
+        <li><a href="{{ route('login') }}">Панель администратора</a></li>
+    @endguest
+    @auth()
+            <li><a href="{{ route('home') }}">Панель администратора</a></li>
+        <li><a href="{{ route('get-logout') }}">Выйти</a></li>
+    @endauth
+
+#Добавим новый контроллер(12:20): //он у нас уже создался ранее
+sail artisan make:Controller HomeController
+
+#B web.php добавляем маршрут:
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 #
 #
 #
