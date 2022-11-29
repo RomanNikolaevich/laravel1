@@ -936,23 +936,31 @@ protected $routeMiddleware = [
         Route::post('/basket/place', [BasketController::class, 'basketConfirm'])->name('basket-confirm');
     });
 
-Так же мы видим, что везде в роутах повторяется слово basket, поэтому мы его перенесем в group:
+Так же мы видим, что везде в роутах повторяется слово basket, поэтому мы его перенесем в group(кроме "basket-add"):
 Route::group([
     'middleware' => 'basket_not_empty',
-    'prefix' => 'basket',//теперь слово basket из роута можно удалить
+    'prefix' => 'basket',//по умолчанию добавляет слово basket, теперь слово basket из роута можно удалить
 ], function () {
     Route::get('/', [BasketController::class, 'basket'])->name('basket');
     Route::get('/place', [BasketController::class, 'basketPlace'])->name('basket-place');
-    Route::post('/add/{id}', [BasketController::class, 'basketAdd'])->name('basket-add');
+
     Route::post('/remove/{id}', [BasketController::class, 'basketRemove'])->name('basket-remove');
     Route::post('/place', [BasketController::class, 'basketConfirm'])->name('basket-confirm');
 });
+Route::post('/basket/add/{id}', [BasketController::class, 'basketAdd'])->name('basket-add');
 Так же повторяется название, но мы его пока не будем выносить.
 Проверяем - выходим и заходим в пустую корзину, все работает как ранее, значит ничего не сломалось хотя бы.
 
 #Проверить если в нас заказ? Для этого переходим в BasketController, копируем проверку и вставляем в BasketIsNotEmpty
 и меняем значение на !is_null:
-
+        $orderId = session('orderId');
+        if (!is_null($orderId)) {
+            $order = Order::findOrFail($orderId);//выдаст 404 ошибку, если по id Oder ничего не будет найдено
+            if ($order->products->count() === 0) {//если количество товаров 0, то редиректим назад
+                session()->flash('warning', 'Ваша корзина пуста');
+                return redirect()->route('index');
+            }
+        }
 
 
 #
