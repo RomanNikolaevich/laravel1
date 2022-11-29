@@ -31,6 +31,9 @@ ping localhost
 Дальше запускаем в терминале только так: sail up -d
 Остановить: sail stop
 
+#Устранение ошиьки роутеров через чистку кеша:
+sail artisan route:cache
+
 
 Урок №1 Установка, Настройка
 #Список команд artisan:
@@ -674,7 +677,7 @@ composer require laravel/ui
 #Чтобы посмотреть, что нового добавилось нужно ввести(покажет новые маршруты):
     sail artisan route:list
 
-#Как посомтреть какие маршруты у нас зарегистрированы - переходим к файлу Router.php(Shift два раза кликнуть), таких
+#Как посмотреть какие маршруты у нас зарегистрированы - переходим к файлу Router.php(Shift два раза кликнуть), таких
 файла два, выбираем того, что для Laravel.
 
 #В web.php добавляем строчки (обрезаем неиспользуемые параметры):
@@ -730,16 +733,76 @@ sail artisan make:Controller HomeController
 
 #B web.php добавляем маршрут:
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
+
+
+Урок №10 Middleware Авторизации
+
+#web.php добавляем middleware(это прослойка между маршрутом и контроллером)
+Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
+
+#Для каждого маршрута добавлять проверку не очень удобно, поэтому есть способ через Route::group
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+});
+
+#Добавляем страницу заказов в админке - создаем шаблон resources/viewes/auth/orders/index.blade.php
+ДОбавляем уникальный html код. Добавляем функционал из мастершаблона.
+
+#B HomeController добавляем маршрут к админке:
+class HomeController extends Controller
+{
+    public function index():Factory|View|Application
+    {
+        return view('auth.orders.index');
+    }
+}
+
+#Правим наш register.blade.php, master.blade.php
+
+#B web.php /home меняем на /orders
+
+#HomeController меняем на OrderController через Shift+F6 (после чего везде меняется название)
+
+#Добавляем новый метод в LoginController:
+    protected function redirectTo():string
+    {
+        return route('home');
+    }
+
+#Проверка роута: (15:30)
+php artisan route:list
+Смотрим, что register осуществляет POST Auth\RegisterController@register, переходим в него и видим там свойство $redirectTo
+Добавляем в этом контролере новый метод с таким же названием redirectTo():
+    protected function redirectTo()
+    {
+        return route('home');
+    }
+А protected $redirectTo = RouteServiceProvider::HOME; удаляем
+
+#OrderController.php переносим в новосозданную папку Admin, так как так логичнее. После переноса проверяем, чтобы в
+неймспейсах прописалась новая папка. Так же проверяем, чтобы неймспес сменился у этого контролера и в web.php
+В метод index добавляем строку:
+        $orders = Order::where('status', 1)->get();
+        return view('auth.orders.index', compact('orders'));
+
+B index.blade.php отображаем:
+            @foreach($orders as $order)
+                <tr>
+                    <td>{{ $order->id}}</td>
+                    <td>{{ $order->name }}</td>
+                    <td>{{ $order->phone }}</td>
+                    <td>{{ $order->created_at->format('H:i d/m/Y') }}</td>
+                    <td>{{ $order->getFullPrice() }} руб.</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a class="btn btn-success" type="button"
+                               href="http://laravel-diplom-1.rdavydov.ru/admin/orders/1">Открыть</a>
+                        </div>
+                    </td>
+                </tr>
+            @endforeach
+
+
 #
 #
 #
