@@ -804,18 +804,157 @@ B index.blade.php отображаем:
 
 
 #
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
+
+Урок №11 Создание Middleware, Auth
+
+#На данный момент в админке у нас любой зарегистрировавшийся пользователь может попасть в админку и видеть все заказы.
+Для этого мы создадим новое поле в таблице 'users':
+sail artisan make:migration alter_table_users
+
+#В новой миграции добавляем поле 'is_admin'. Методы копируем из предыдущей миграции, меняем только название таблицы,
+ название и свойства полей:
+    public function up():void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->tinyInteger('is_admin')->default(0);
+        });
+    }
+    public function down():void //это метод для отката миграции
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('is_admin');
+        });
+    }
+Запускаем миграцию:
+    sail artisan migrate
+
+#Переходим в талицу и в поле 'is_admin' вручную добавляем "1" тем email, кого хотим видеть адимнистратором.
+
+#Теперь нам нужно это как-то проверять и фильтровать. Для этого добавим Middleware. Делаем через:
+    sail artisan make:
+появляется подсказка и оттуда подсматриваем + добавляем название и запускаем:
+    sail artisan make:middleware ChackIsAdmin
+У нас появился новый класс ChackIsAdmin
+    public function handle(Request $request, Closure $next)
+    {
+        return $next($request);
+    }
+Модифицируем его - если пользователь не админ, то он должен редиректиться на главную страницу. Для этого нам нужно создать
+новую функцию в классе User:
+    public function isAdmin()
+    {
+        return $this->is_admin === 1;
+    }
+
+#В Kernel.php добавляем
+protected $routeMiddleware = [
+...
+        'is_admin' => \App\Http\Middleware\ChackIsAdmin::class,
+
+Дальше нам нужно вот этот алиас использовать внутри роутинга(web.php):
+вместо :
+    Route::get('/orders', [OrderController::class, 'index'])->name('home');
+прописываем:
+    Route::group(['middleware' => 'is_admin'], function () {
+        Route::get('/orders', [OrderController::class, 'index'])->name('home');
+    });
+
+#Теперь в ChackIsAdmin проверим что мы туда попадаем добавив: dd(1);
+Должно вывести 1 при переходе в /routers, но у меня ничего не произошло, поэтому чистим кеш:
+    sail artisan route:cache
+Теперь все работает. Вместо dd добавляем фасад Auth и берем функцию user. Фасад - это некий статичный класс, который
+закрывает наш функционал.
+    public function handle(Request $request, Closure $next)
+    {
+        $user = Auth::user();
+        dd($user);
+        return $next($request);
+    }
+У нас появился объект модели user с полем 'is_admin', но тут много ненужной информации ищем только это:
+     dd($user->isAdmin());
+Получаем true/false. Все работает, поэтому вместо dd прописываем условие:
+        if(!$user->isAdmin()){
+            session()->flash('warning', 'У вас нет прав администратора'); //уведомление
+            return redirect()->route('index'); //редирект если не админ на главную
+        }
+Меняем в БД себе права с 1 на 0 и пробуем зайти на /orders - перебрасывает на главную, все работает.
+
+#Теперь добавить возможность отображения по кажому пользователю какие заказы он в прошлом заказывал. Для этого в таблице
+'orders' добавить новое поле 'user_id':
+    sail artisan make:migration alter_table_orders
+Добавляем методы:
+    public function up()
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            $table->integer('user_id');//по умолчанию у нас все поля not nullable
+        });
+    }
+    public function down()
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('user_id');
+        });
+    }
+Запускаем миграцию:
+    sail artisan migrate
+
+#B BasketController добавляем передачу заказа в новое поле в методе basketAd():
+        if (Auth::check()) {//если мы авторизованы, то:
+            $order->user_id = Auth::id();//добавляем в поле 'user_id' метод id() класса Auth
+            $order->save(); // сохраняем
+        }
+
+#При создани миграции мы не указали, что если пользователь если не авторизован, то у него "0". Для этого откатываем нашу
+миграцию(если мы эту миграцию никуда не пушили, то можно просто менять):
+    sail artisan migrate:rollback --step=1
+Добавляем nullable:
+    public function up()
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            $table->integer('user_id')->nullable();//по умолчанию у нас все поля not nullable
+        });
+    }
+Затем снова делаем миграцию:
+    sail artisan migrate
+И пробуем добавить в корзину товар. В таблице 'orders' появилось поле 'user_id' и в нем уже проставляется id пользователя,
+заказавшего этот товар.
+
+#Теперь нужно реализовать выход из корзины, если покупатель удалил свой товар и корзина пустая, а так же сделать
+не возможным заходить в пустую корзину. Это опять же мы реализуем через middleware:
+    sail artisan make:middleware BasketIsNotEmpty
+
+затем мы этот класс регистрируем в Kernel.php:
+        'basket_not_empty' => \App\Http\Middleware\BasketIsNotEmpty::class,
+
+Теперь этот middleware нужно повесить на все маршруты, которые работают с корзиной(в web.php), для этого создаем роут
+и переносим в него все ранее созданные роуты, которые уже работают с корзиной:
+    Route::group(['middleware' => 'basket_not_empty'], function () {
+        Route::get('/basket', [BasketController::class, 'basket'])->name('basket');
+        Route::get('/basket/place', [BasketController::class, 'basketPlace'])->name('basket-place');
+        Route::post('/basket/add/{id}', [BasketController::class, 'basketAdd'])->name('basket-add');
+        Route::post('/basket/remove/{id}', [BasketController::class, 'basketRemove'])->name('basket-remove');
+        Route::post('/basket/place', [BasketController::class, 'basketConfirm'])->name('basket-confirm');
+    });
+
+Так же мы видим, что везде в роутах повторяется слово basket, поэтому мы его перенесем в group:
+Route::group([
+    'middleware' => 'basket_not_empty',
+    'prefix' => 'basket',//теперь слово basket из роута можно удалить
+], function () {
+    Route::get('/', [BasketController::class, 'basket'])->name('basket');
+    Route::get('/place', [BasketController::class, 'basketPlace'])->name('basket-place');
+    Route::post('/add/{id}', [BasketController::class, 'basketAdd'])->name('basket-add');
+    Route::post('/remove/{id}', [BasketController::class, 'basketRemove'])->name('basket-remove');
+    Route::post('/place', [BasketController::class, 'basketConfirm'])->name('basket-confirm');
+});
+Так же повторяется название, но мы его пока не будем выносить.
+Проверяем - выходим и заходим в пустую корзину, все работает как ранее, значит ничего не сломалось хотя бы.
+
+#Проверить если в нас заказ? Для этого переходим в BasketController, копируем проверку и вставляем в BasketIsNotEmpty
+и меняем значение на !is_null:
+
+
+
 #
 #
 #

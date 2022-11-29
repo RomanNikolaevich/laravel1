@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BasketController extends Controller
 {
@@ -68,6 +69,11 @@ class BasketController extends Controller
             $pivotRow->update();//обновляем в БД
         } else {//если товара нет в корзине:
             $order->products()->attach($productId); //добавляем товар в корзину, используем нашу связь.
+        }
+
+        if (Auth::check()) {//если мы авторизованы, то:
+            $order->user_id = Auth::id();//добавляем в поле 'user_id' метод id() класса Auth
+            $order->save(); // сохраняем
         }
         $product = Product::find($productId);//находим товар
         session()->flash('success', 'Добавлен товар '. $product->name);
