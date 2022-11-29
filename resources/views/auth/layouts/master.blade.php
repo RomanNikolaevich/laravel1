@@ -29,9 +29,9 @@
 
             <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href="http://laravel-diplom-1.rdavydov.ru/admin/categories">Категории</a></li>
-                    <li><a href="http://laravel-diplom-1.rdavydov.ru/admin/products">Товары</a></li>
-                    <li><a href="http://laravel-diplom-1.rdavydov.ru/admin/orders">Заказы</a></li>
+                    <li><a href="/admin/categories">Категории</a></li>
+                    <li><a href="/admin/products">Товары</a></li>
+                    <li><a href="/admin/orders">Заказы</a></li>
                 </ul>
 
                 @guest
