@@ -963,14 +963,63 @@ Route::post('/basket/add/{id}', [BasketController::class, 'basketAdd'])->name('b
         }
 
 
-#
-#
-#
-#
-#
-#
-#
-#
+
+Урок №12: Resource Controller, REST, Spoofing
+
+#В Laravel есть понятие ресурс-контроллера, для его создания запускаем команду:
+sail artisan make:controller Admin/CategoryController --resource
+
+Но есть еще более удобный вариант:
+sail artisan make:controller Admin/CategoryController --resource --model=Category
+так Laravel находит модель и подставляет к каждому методу. В результате в каждый метод было прокинуто свойство $category
+
+#Регистрируем все эти маршруты в web.php:
+Route::resource('categories', 'CategoryController');
+
+В метод group добавляем префиксы для URI:
+'prefix'     => 'admin',
+
+#Проверяем роуты:
+sail artisan route:list
+
+#B master.blade.php избавляемся от старых ссылок:
+<li><a href="/admin/categories">Категории</a></li>
+меняем на:
+<li><a href="{{ route('categories.index') }}">Категории</a></li>
+и так далее.
+
+#Создаем новый шаблон:
+resources/views/auth/categories/index.blade.php
+
+#В CategoryController в метод index() добавляем:
+    return view('auth.categories.index');
+
+#Появилась ошибка - не видит класс "Target class [Admin\CategoryController] does not exist."
+Почистил кеш - не помогло:
+    sail artisan route:cache
+    sail artisan route:clear
+
+Перегрузил автозагрузку - тоже не помогло:
+    composer dump-autoload
+
+Сделал проверку роутлиста:
+    sail artisan route:list
+Пишет, что "Class "Admin\CategoryController" does not exist"
+
+Почитал документацию там класс по другому пишут в роутах(https://laravel.com/docs/9.x/controllers):
+    Route::resource('categories', CategoryController::class);
+Но тоже не помогло, хотя класс импортировал.
+
+Помогло убрать неймспейсы в web.php:
+Route::group([
+    'middleware' => 'auth',
+   // 'namespace'  => 'Admin',
+    'prefix'     => 'admin',
+
+# В ходе урока по дизайне-паттерну Rest мы сделали возможным редактировать наши категории
+
+
+
 #
 #
 #

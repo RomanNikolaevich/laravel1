@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BasketController;
@@ -12,16 +13,19 @@ Auth::routes([
     'confirm' => false,
     'verify'  => false,
 ]);
-//Route::get('/login', [LoginController::class, 'login'])->name('login');
+
 Route::get('/logout', [LoginController::class, 'logout'])->name('get-logout');
+
 Route::group([
     'middleware' => 'auth',
-    'namespace' => 'Admin',
-], function () {
-    Route::group(['middleware' => 'is_admin'], function () {
+   // 'namespace'  => 'Admin',
+    'prefix'     => 'admin',
+], static function () {
+    Route::group(['middleware' => 'is_admin'], static function () {
         Route::get('/orders', [OrderController::class, 'index'])->name('home');
     });
 
+    Route::resource('categories', CategoryController::class);
 });
 
 Route::get('/', [MainController::class, 'index'])->name('index');
@@ -29,7 +33,7 @@ Route::get('/categories', [MainController::class, 'categories'])->name('categori
 
 Route::group([
     'middleware' => 'basket_not_empty',
-    'prefix' => 'basket',//по умолчанию добавляет слово basket, теперь слово basket из роута можно удалить
+    'prefix'     => 'basket',//по умолчанию добавляет слово basket, теперь слово basket из роута можно удалить
 ], function () {
     Route::get('/', [BasketController::class, 'basket'])->name('basket');
     Route::get('/place', [BasketController::class, 'basketPlace'])->name('basket-place');
