@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -12,17 +13,18 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 
-class CategoryController extends Controller
+class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return Application|Factory|View
      */
-    public function index():View|Factory|Application
+    public function index():Application|Factory|View
     {
-        $categories = Category::get();
-        return view('auth.categories.index', compact('categories'));
+        $products = Product::get();
+
+        return view('auth.products.index', compact('products'));
     }
 
     /**
@@ -32,7 +34,9 @@ class CategoryController extends Controller
      */
     public function create():View|Factory|Application
     {
-        return view('auth.categories.form');
+        $categories = Category::get();
+
+        return view('auth.products.form', compact('categories'));
     }
 
     /**
@@ -44,66 +48,67 @@ class CategoryController extends Controller
      */
     public function store(Request $request):RedirectResponse
     {
-        $path = $request->file('image')->store('categories');
-        //image - название поля html верстке в input у кнопки "Загрузить", categories - папка для загрузки картинок
+        $path = $request->file('image')->store('products');
         $params = $request->all();
         $params['image'] = $path;
-        Category::create($params);
-        return redirect()->route('categories.index');
+        Product::create($params);
+        return redirect()->route('products.index');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param Category $category
+     * @param Product $product
      *
      * @return Application|Factory|View
      */
-    public function show(Category $category):View|Factory|Application
+    public function show(Product $product):View|Factory|Application
     {
-        return view('auth.categories.show', compact('category'));
+        return view('auth.products.show', compact('product'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param Category $category
+     * @param Product $product
      *
      * @return Application|Factory|View
      */
-    public function edit(Category $category):View|Factory|Application
+    public function edit(Product $product):View|Factory|Application
     {
-        return view('auth.categories.form', compact('category'));
+        $categories = Category::get();
+        return view('auth.products.form', compact('product', 'categories'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param Request  $request
-     * @param Category $category
+     * @param Request $request
+     * @param Product $product
      *
      * @return RedirectResponse
      */
-    public function update(Request $request, Category $category):RedirectResponse
+    public function update(Request $request, Product $product):RedirectResponse
     {
         Storage::delete('image');
-        $path = $request->file('image')->store('categories');
+        $path = $request->file('image')->store('products');
         $params = $request->all();
         $params['image'] = $path;
-        $category->update($params);
-        return redirect()->route('categories.index');
+        $product->update($params);
+        return redirect()->route('products.index');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param Category $category
+     * @param Product $product
      *
      * @return RedirectResponse
      */
-    public function destroy(Category $category):RedirectResponse
+    public function destroy(Product $product):RedirectResponse
     {
-        $category->delete();
-        return redirect()->route('categories.index');
+        $product->delete();
+
+        return redirect()->route('products.index');
     }
 }

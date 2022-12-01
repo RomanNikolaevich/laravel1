@@ -1019,16 +1019,124 @@ Route::group([
 # В ходе урока по дизайне-паттерну Rest мы сделали возможным редактировать наши категории
 
 
+Урок №13 Storage
 
-#
-#
-#
-#
-#
-#
-#
-#
-#
+#По аналогии с прошлым уроком создаем возможность просматривать, редактировать и удалять товары.
+Для этого создаем новый контроллер ProductController.
+Добавляем в класс Product:
+    protected $fillable = ['name', 'code', 'price', 'category_id', 'description', 'image'];
+Добавляем шаблоны:
+    resources/views/auth/products/form.blade.php
+    resources/views/auth/products/index.blade.php
+    resources/views/auth/products/show.blade.php
+В существующий master.blade.php добавляем роуты:
+    <li><a href="{{ route('products.index') }}">Товары</a>
+    <li><a href="{{ route('home') }}">Заказы</a></li>
+В web.php новый роут(импортируем класс):
+    Route::resource('products', ProductController::class);
+
+#Теперь в админке "Товары" открываются и их можно редактировать и удалять, а "Заказы" выводятся, но просматривать еще нельзя.
+
+# При редактировании товаров добавляем динамичности в выборе категории - в ProductController добавляем:
+    public function create():View|Factory|Application
+    {
+        $categories = Category::get();
+        return view('auth.products.form', compact('categories'));
+    }
+    public function edit(Product $product):View|Factory|Application
+    {
+        $categories = Category::get();
+        return view('auth.products.form', compact('product', 'categories'));
+    }
+Затем в form.blade через цикл выводим выпадающий список:
+Вместо:
+        <select name="category_id" id="category_id" class="form-control">
+            <option value="1">Мобильные телефоны</option>
+            <option value="2">Портативная техника</option>
+            <option value="3">Бытовая техника</option>
+        </select>
+Добавляем:
+        @foreach($categories as $category)
+           <option value="{{ $category->id }}"> {{ $category->name }} </option>
+        @endforeach
+Вывод уже работает, но нужнго проверить еще и на существование категории:
+          @foreach($categories as $category)
+            <option value="{{ $category->id }}"
+            @isset($product)
+                @if($product->category_id == $category->id)
+                    selected
+                    @endif
+                @endisset
+            > {{ $category->name }} </option>
+            @endforeach
+
+#Следующий этам - добавление картинки в категорию. Laravel работает со всеми файловыми хранилищами через абстрактный
+ класс - фасад Storage. Настроим Storage. Сам класс в папке /storage/app/public. В config/filesystems.php настройки.
+ Если выбрать 'disks' => 'public', то будут видны все файлы, которые на сервер к себе загружаете в storage. По умолчанию
+ корневая директория root является public, поэтому что-бы попасть в storage в Laravel есть возможность через команду
+ артисан создать семлинк:
+    sail artisan storage:link
+// INFO  The [public/storage] link has been connected to [storage/app/public]. //в паблик папке сделали файлик storage.
+Далее переходим в CategoryController в методе store нам нужно получить путь к новому созданному файлу:
+    public function store(Request $request):RedirectResponse
+    {
+        $path = $request->file('image')->store('categories');
+        //image - название поля html верстке в input у кнопки "Загрузить", categories - папка для загрузки картинок
+        $params = $request->all();
+        $params['image'] = $path;
+        Category::create($params);
+        return redirect()->route('categories.index');
+    }
+Далее пробуем создать новую категорию и прикрепить к ней картинку, затем переходим в БД и можем видеть в поле таблице
+"categories" в поле "image" появилась надпись с путем к файлу.
+Появилась новая папка: /storage/app/categories/
+Чтобы отображались картинки в public нужно в .env меняем:
+FILESYSTEM_DISK=local на FILESYSTEM_DISK=public
+(08:59)//в уроке добавлялся файл FILESYSTEM_DRIVER=public, так как такой путь был в filesystems.php
+
+#Для добавления возможности перезаписи изображения добавляем в CategoryController в метод update логику из store,
+код такой же, только добавляем сначала удаляем предыдущую с помощью метода фасада Storage::delete:
+        Storage::delete('image');//в старых версиях так писать: Storage::delete($product->image);
+        $path = $request->file('image')->store('categories');
+        $params = $request->all();
+        $params['image'] = $path;
+        Category::create($params);
+        $category->update($params);
+        return redirect()->route('categories.index');
+
+#Дублируем так же для метода store у ProductController такой же код:
+        $path = $request->file('image')->store('products');
+        $params = $request->all();
+        $params['image'] = $path;
+        Product::create($params);
+        return redirect()->route('products.index');
+и в методе update:
+        Storage::delete('image');// в старых версиях так писать: Storage::delete($product->image);
+        $path = $request->file('image')->store('products');
+        $params = $request->all();
+        $params['image'] = $path;
+        $product->update($params);
+        return redirect()->route('products.index');
+
+#И соответствено вносим изменения в /products/show.blade.php - там где "Картинки":
+    <td><img src="{{ Storage::url($product->image) }}" height="240px"></td>
+
+#Проверяем - у новых товаров изображения тоже добавляются.
+
+#Теперь нужно изменить вывод изображения товаров на главной странице. Для этого переходим в /layouts/card.blade.php
+вместо:
+<img src="http://internet-shop.tmweb.ru/storage/products/iphone_x.jpg" alt="iPhone X 64GB">
+прописываем:
+<img src="{{ Storage::url($product->image) }}" alt="iPhone X 64GB">
+
+Так же меняем ссылку и в categories.blade.php
+ <img src="{{ Storage::url($category->image) }}">
+
+Меняем так же изображение добавленное в корзину basket.blade.php:
+<img height="56px" src="{{ Storage::url($product->image) }}">
+
+
+
 #
 #
 #
