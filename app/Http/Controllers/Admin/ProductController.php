@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Contracts\Foundation\Application;
@@ -46,11 +47,13 @@ class ProductController extends Controller
      *
      * @return RedirectResponse
      */
-    public function store(Request $request):RedirectResponse
+    public function store(ProductRequest $request):RedirectResponse
     {
-        $path = $request->file('image')->store('products');
         $params = $request->all();
-        $params['image'] = $path;
+        unset($params['image']);
+        if ($request->has('image')) {
+            $params['image'] = $request->file('image')->store('products');
+        }
         Product::create($params);
         return redirect()->route('products.index');
     }
@@ -88,12 +91,15 @@ class ProductController extends Controller
      *
      * @return RedirectResponse
      */
-    public function update(Request $request, Product $product):RedirectResponse
+    public function update(ProductRequest $request, Product $product):RedirectResponse
     {
-        Storage::delete('image');
-        $path = $request->file('image')->store('products');
         $params = $request->all();
-        $params['image'] = $path;
+        unset($params['image']);
+        if ($request->has('image')) {
+            Storage::delete('image');
+            $params['image'] = $request->file('image')->store('products');
+        }
+
         $product->update($params);
         return redirect()->route('products.index');
     }

@@ -29,14 +29,20 @@
                 <div class="input-group row">
                     <label for="code" class="col-sm-2 col-form-label">Код: </label>
                     <div class="col-sm-6">
+                        @error('code')
+                        <div class="alert alert-danger">{{ $message }}</div>
+                        @enderror
                         <input type="text" class="form-control" name="code" id="code"
-                               value="@isset($category){{ $category->code }}@endisset">
+                               value="{{ old('code', isset($category) ? $category->code : null) }}">
                     </div>
                 </div>
                 <br>
                 <div class="input-group row">
                     <label for="name" class="col-sm-2 col-form-label">Название: </label>
                     <div class="col-sm-6">
+                        @error('name')
+                        <span class="alert alert-danger">{{ $message }}</span>
+                        @enderror
                         <input type="text" class="form-control" name="name" id="name"
                                value="@isset($category){{ $category->name }}@endisset">
                     </div>
@@ -45,22 +51,25 @@
                 <div class="input-group row">
                     <label for="description" class="col-sm-2 col-form-label">Описание: </label>
                     <div class="col-sm-6">
-							<textarea name="description" id="description" cols="72"
-                                      rows="7">@isset($category)
-                                    {{ $category->description }}
-                                @endisset</textarea>
+                        @error('description')
+                        <span class="alert alert-danger">{{ $message }}</span>
+                        @enderror
+                        <textarea name="description" id="description" cols="72"
+                                  rows="7">@isset($category)
+                                {{ $category->description }}
+                            @endisset</textarea>
                     </div>
                 </div>
                 <br>
-                <div class="input-group row">
-                    <label for="image" class="col-sm-2 col-form-label">Картинка: </label>
-                    <div class="col-sm-10">
-                        <label class="btn btn-default btn-file">
-                            Загрузить <input type="file" style="display: none;" name="image" id="image">
-                        </label>
+                    <div class="input-group row">
+                        <label for="image" class="col-sm-2 col-form-label">Картинка: </label>
+                        <div class="col-sm-10">
+                            <label class="btn btn-default btn-file">
+                                Загрузить <input type="file" style="display: none;" name="image" id="image">
+                            </label>
+                        </div>
                     </div>
-                </div>
-                <button class="btn btn-success">Сохранить</button>
+                    <button class="btn btn-success">Сохранить</button>
             </div>
         </form>
     </div>
