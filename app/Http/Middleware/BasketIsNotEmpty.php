@@ -4,29 +4,30 @@ namespace App\Http\Middleware;
 
 use App\Models\Order;
 use Closure;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class BasketIsNotEmpty
 {
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request                                                                          $request
-     * @param \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse) $next
+     * @param Request                                       $request
+     * @param Closure(Request): (Response|RedirectResponse) $next
      *
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return Response|RedirectResponse
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next):Response|RedirectResponse
     {
         $orderId = session('orderId');
         if (!is_null($orderId)) {
-            $order = Order::findOrFail($orderId);//выдаст 404 ошибку, если по id Oder ничего не будет найдено
-            if ($order->products->count() === 0) {//если количество товаров 0, то редиректим назад
-                session()->flash('warning', 'Ваша корзина пуста');
-                return redirect()->route('index');
+            $order = Order::findOrFail($orderId);
+            if ($order->products->count() > 0) {
+                return $next($request);
             }
         }
-
-        return $next($request);
+        session()->flash('warning', 'Ваша корзина пуста');
+        return redirect()->route('index');
     }
 }

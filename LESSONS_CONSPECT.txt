@@ -220,7 +220,7 @@ return view('index', compact('products'));
 Теперь переходим в шаблон card.blade.php, где можем эту переменную продукт отобразить - название <h3>iPhone X 64GB</h3>
 заменяем на:
 <h3>{{ $product->name }}</h3>
-Так же меняем и строчку с ценой на : <p>{{ $product->price }} ₽</p>
+Так же меняем и строчку с ценой на : <p>{{ $product->price }} ₴</p>
 Теперь все товары из БД вывелись, только фото у всех осталось одно как было в шаблоне.
 
 #Теперь нужно сделать, чтобы категория также отображалась и на главной в описании каждого товара. В БД категория
@@ -792,7 +792,7 @@ B index.blade.php отображаем:
                     <td>{{ $order->name }}</td>
                     <td>{{ $order->phone }}</td>
                     <td>{{ $order->created_at->format('H:i d/m/Y') }}</td>
-                    <td>{{ $order->getFullPrice() }} руб.</td>
+                    <td>{{ $order->getFullPrice() }} грн.</td>
                     <td>
                         <div class="btn-group" role="group">
                             <a class="btn btn-success" type="button"
@@ -1274,17 +1274,234 @@ FILESYSTEM_DISK=local на FILESYSTEM_DISK=public
         }
         return $rules;
     }
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
+
+
+Урок №15: Blade Custom Directive
+
+#В этом уроке будем реализовывать подсветку пунктов меню и реализуем страничку заказов.
+Для этого нам нужен /layouts/master.blade.php - это всего лишь класс active, который проставлен только для index:
+     <li class="active"><a href="{{ route('index') }}">Все товары</a></li>
+для остальных не проставлен. Для того чтобы реализовать, чтобы включалось только когда нужно, то нам нужно добавить
+директиву @if и @endif:
+    <li @if(Route::currentRouteNamed('index')) class="active" @endif><a href="{{ route('index') }}">Все товары</a></li>
+    <li @if(Route::currentRouteNamed('categor*')) class="active" @endif><a href="{{ route('categories') }}">Категории</a></li>
+Так можно все товары проставлять, но так будет слишком много php кода в blade. Чтобы это сделать нужно понять как
+ генерируются blades. Переходим в /storage/framework/views/ и тут мы види кучу сгенерированных страниц для отображения.
+ Для их очистки нужно ввести команду:
+    sail artisan view:clear
+Все файлы шаблонов пропали и теперь при первой загрузке страницы у нас появится скомпелированный шаблон, даже три. Находим
+нужный нам файл - в нем тот же master.blade, только вместо кодов Laravel чистый php.
+Переделываем код, напишем свою директиву, которая будет проверять - если роут активный, то она добавляет класс active.
+Если не активный, то соотвественно ничего не добавляет.
+Для этого мы переходим в AppServiceProvider здесь в методе boot() дописываем расширение для blade
+    public function boot()
+    {
+        Blade::directive('routeactive', function ($route) {
+            return "<?php echo Route::currentRouteNamed($route) ? 'class=\"active\"' : '' ?>";
+        });
+    }
+'routeactive' - название директивы, сами придумываем, вторым аргументом будет функция замыкания, в которой
+параметром $route будем передевать название роута, чтобы знать какой роут сюда попадает. В этой функции мы будем
+возвращать php код
+тут:  Route::currentRouteNamed($route) ? 'class=\"active\"' : '' //из master.blade взято
+
+Теперь переходим в /layouts/master.blade.php и вместо условий @if проставляем @routeactive:
+    <li @routeactive('index')><a href="{{ route('index') }}">Все товары</a></li>
+
+ Повторно очищаем сгенерированные с шаблонов файлы иначе будет отображать ошибку синтаксиса!!!:
+    sail artisan view:clear
+Все работает, проделываем то же и для остальных категорий в шаблоне.
+PhpStorm не понимает, что это директива blade, как с этим бороться? В IDE заходим в File->Settings->PHP->Blade->
+убираем галочку 'use defalt settings' и в вкладке Directives добавляем свою директиву:
+    Name: routeactive и подтверждаем. Теперь IDE подсвечивает правильно.
+
+#Изменяем вывод о количестве товаров в корзине (если пустая), для этого переходим в BasketIsNotEmpty:
+    public function handle(Request $request, Closure $next):Response|RedirectResponse
+    {
+        $orderId = session('orderId');
+        if (!is_null($orderId)) {
+            $order = Order::findOrFail($orderId);
+            if ($order->products->count() > 0) {
+                return $next($request);
+            }
+        }
+        session()->flash('warning', 'Ваша корзина пуста');
+        return redirect()->route('index');
+    }
+Теперь если товаров нет, то при клике на корзину появляется уведомление, что корзина пуста
+
+#Реализация обработки заказов (08:20).
+При заходе в "Панель администратора" попадаем на вкладку /orders ("Заказы"). Если нажать на кнопку "Открыть" у любого
+заказа, то дальше функционал не реализован. Создаем новый шаблон:
+    resources/views/auth/orders/show.blade.php
+Добавляем из index.blade то, что будет повторяться
+
+Теперь это нужно реализовать. Для этого переходим в /Admin/OrderController здесь нам нужно добавить метод show()
+    public function show(Order $order):View|Factory|RedirectResponse|Application
+    {
+        return view('auth.orders.show', compact('order'));
+    }
+
+Осталось добавить в web.php маршруты:
+Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+Делаем проверку:
+    sail artisan route:list
+Если роута 'orders.show' нет, то делаем чистку роутов:
+    sail artisan route:clear
+После чего проверяем повторно проверку роутов.
+
+Так же orders/index.blade.php прописываем роут 'orders.show' и вторым параметором передаем сам заказ $order для кнопки "Открыть":
+    href="{{ route('orders.show', $order) }}">Открыть</a>
+Проверяем в "Заказы" кнопку "Открыть"
+
+
+#Теперь реализуем возможность пользователя посмотреть свои заказы в панели администратора. Для этого создадим
+новый контроллер: app/Http/Controllers/Person/OrderController.php
+    sail artisan make:controller Person/OrderController
+
+#Дальше в web.php мы должны его добавить. Давайте выделим auth middlewere, что у нас везде нужна проверка на авторизацию:
+Route::middleware(['auth'])-> group(function (){
+    Route::group([
+        'prefix' => 'person',
+        'namespace' => 'Person',
+        'as' => 'person.',
+    ], function () {
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    });
+
+    Route::group([
+        'namespace'  => 'Admin',
+        'prefix'     => 'admin',
+    ], static function () {
+        Route::group(['middleware' => 'is_admin'], static function () {
+            Route::get('/orders', [OrderController::class, 'index'])->name('home');
+            Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        });
+
+        Route::resource('categories', CategoryController::class);
+        Route::resource('products', ProductController::class);
+    });
+});
+
+#Добавим в Person/OrderController методы из Admin/OrderController копируем/импорт
+
+#Дальше нужно попробовать пустить пользователя на нужный маршрут в loyouts/master.blade.php добавляем условие для
+тех, кто прошел аутентификацию:
+    @guest()
+        <li><a href="{{ route('login') }}">Войти</a></li>
+    @endguest
+    @auth()
+        @if(Auth::user()->isAdmin())
+                <li><a href="{{ route('home') }}">Панель администратора</a></li>
+            @else
+                <li><a href="{{ route('person.orders.index') }}">Мои заказы</a></li>
+            @endif
+
+            <li><a href="{{ route('get-logout') }}">Выйти</a></li>
+        @endauth
+
+В Person/OrderController изменяем возможность видеть не все товары, а только те, чтьо принадлежат пользователю:
+    public function index():Factory|View|Application
+    {
+        $orders = Auth::user()->orders()->where('status', 1)->get();
+        return view('auth.orders.index', compact('orders'));
+    }
+
+Теперь в User нужно добавить метод orders() на который мы ссылаемся в Person/OrderController:
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+Далее в orders/index.blade.php добавляем функционал из master.blade:
+   <a class="btn btn-success" type="button"
+       @if(Auth::user()->isAdmin())
+           href="{{ route('orders.show', $order) }}"
+       @else
+           href="{{ route('person.orders.show', $order) }}"
+        @endif
+    >Открыть</a>
+
+Теперь нам нужно сделать, чтобы небыло возможность в адресной строке путем изменения номера заказа пользовыателю
+переходить на заказы других пользователей. Для этого достаточно в Person/OrderController в методе show() добавить:
+    public function show(Order $order):View|Factory|RedirectResponse|Application
+    {
+        if (!Auth::user()->orders->contains($order)) {
+            return back();
+        }
+        return view('auth.orders.show', compact('order'));
+    }
+
+#У нас не очень удобно получается, что в шаблоне вместо того, чтобы использовать какие-то директивы мы используем уже
+ код php. Для этого лучше в AppServiceProvider добавить кастомный if(23:20) в методе boot():
+        Blade::if('admin', function () {//admin - название директивы
+            return Auth::check() && Auth::user()->isAdmin();
+        });
+
+Теперь в orders/index.blade.php:
+    @if(Auth::user()->isAdmin())
+заменяем на:
+    @admin
+а @endif заменяем на @endadmin
+
+Чтобы PHPStorm нормально мог понимать эти директивы снова добавляем их в настройки и добавляем в шаблоны Blade
+ директивы admin и endadmin.
+
+#Не забываем сбрасывать кеш:
+    sail artisan view:clear
+
+#При заходе за обычного пользователя как определить куда редиректит? Нажимаем просмотр кода ПКМ, вкладка Network, далее
+видим что сначала первая ссылка "Login": Request URL: http://localhost/login, Status Code: 302 Found,
+дальше "orders": Request URL: http://localhost/admin/orders, Status Code: 302 Found,
+и только потом "localhost": Request URL: http://localhost/, Status Code: 200 OK
+
+#Переходим в Http/Auth/LoginController.php в метод redirectTo() здесь редиректит на "home":
+    return route('home');
+меняем:
+    protected function redirectTo():string
+    {
+        if (Auth::user()->isAdmin()) {
+            return route('home');
+        } else {
+            return route('person.orders.index');
+        }
+    }
+Теперь если заходит "не админ", то отправляет на его заказы после авторизации.
+
+Так же в RegisterController импортируем в метод redirectTo() вместо return route('home') новый код:
+    protected function redirectTo()
+    {
+        if (Auth::user()->isAdmin()) {
+            return route('home');
+        } else {
+            return route('person.orders.index');
+        }
+    }
+
+В мастерюблейд исправляем:
+    @guest
+        <li><a href="{{ route('login') }}">Войти</a></li>
+    @endguest
+    @auth
+        @admin
+        <li><a href="{{ route('home') }}">Панель администратора</a></li>
+    @else
+        <li><a href="{{ route('person.orders.index') }}">Мои заказы</a></li>
+        @endadmin
+        <li><a href="{{ route('get-logout') }}">Выйти</a></li>
+    @endauth
+
+В ауз/мастерюблейд исправляем:
+     @admin
+        <li><a href="{{ route('categories.index') }}">Категории</a></li>
+        <li><a href="{{ route('products.index') }}">Товары</a></li>
+        <li><a href="{{ route('home') }}">Заказы</a></li>
+        @else
+            @endadmin
+
+
 #
 #
 #

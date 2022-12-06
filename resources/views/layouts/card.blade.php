@@ -4,7 +4,7 @@
         <div class="caption">
             <h3>{{ $product->name }}</h3>
             <p>{{ $product->category->name }}</p>
-            <p>{{ $product->price }} ₽</p>
+            <p>{{ $product->price }} ₴</p>
             <p>
             <form action="{{ route('basket-add', $product) }}" method="POST">
                 <button type="submit" class="btn btn-primary" role="button">В корзину</button>
