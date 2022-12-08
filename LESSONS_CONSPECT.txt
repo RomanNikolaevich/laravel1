@@ -1546,6 +1546,8 @@ TRUNCATE laravel1.categories
 
 #Запустить все сиды так же можно командой:
     sail artisan migrate:fresh --seed
+Аналогично можно вызвать в методе:
+    Artisan::call('migrate:fresh --seed');
 
 #
 #
