@@ -1539,7 +1539,10 @@ TRUNCATE laravel1.categories
 наполняем новый сидер товарами.
 
 #Теперь осталось реализовать "сбросить проект в начальное состояние", чтобы очищать БД
+Создадим новый контроллер ResetController:
+    sail artisan make:controller ResetController
 
+Регистрируем новый маршрут в web.php:
 
 #
 #

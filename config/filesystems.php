@@ -30,6 +30,11 @@ return [
 
     'disks' => [
 
+        'reset' => [
+            'driver' => 'local',
+            'root' => base_path('resources/images'),
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
