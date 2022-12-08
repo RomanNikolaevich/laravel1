@@ -1544,7 +1544,9 @@ TRUNCATE laravel1.categories
 
 Регистрируем новый маршрут в web.php:
 
-#
+#Запустить все сиды так же можно командой:
+    sail artisan migrate:fresh --seed
+
 #
 #
 #
