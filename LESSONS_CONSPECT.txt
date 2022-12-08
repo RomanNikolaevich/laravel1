@@ -1502,11 +1502,45 @@ Route::middleware(['auth'])-> group(function (){
             @endadmin
 
 
-#
-#
-#
-#
-#
+
+Урок №16: Seeder, Bonus!
+
+#Для создания сидеров создаем класс, которрый будет создавать пользователей:
+    sail artisan make:seeder UsersTableSeeder
+В новом файле заполняем метод run():
+        DB::table('users')->insert([
+            'name' => 'Администратор',
+            'email' => 'admin@example.com',
+            'password' => bcrypt('admin'),
+            'is_admin' => 1,
+        ]);
+
+В файле DatabaseSeeder добавляем в метод run():
+    $this->call(UsersTableSeeder::class);
+
+Теперь для того, чтобы запустить мы можем использовать команду запуска:
+    sail artisan db:seed
+
+В таблице "users" добавился новый пользователь "Администратор"
+
+#Создаем сиды для категории и продуктов:
+    sail artisan make:seeder CategoriesTableSeeder
+В новом файле наполняем категориями и описанием (в массиве!).
+
+#Для проверки работы нам нужно сбросить БД:
+TRUNCATE laravel1.categories
+
+Запускаем только последний seed:
+    sail artisan db:seed --class=CategoriesTableSeeder
+
+#То же самое делаем с продуктами:
+    sail artisan make:seeder ProductsTableSeeder
+
+наполняем новый сидер товарами.
+
+#Теперь осталось реализовать "сбросить проект в начальное состояние", чтобы очищать БД
+
+
 #
 #
 #
