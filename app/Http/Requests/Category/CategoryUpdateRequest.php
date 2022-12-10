@@ -40,6 +40,7 @@ class CategoryUpdateRequest extends FormRequest
             'required' => 'Поле :attribute обязательно для ввода',
             'min'      => 'Поле :attribute должно иметь минимум :min символов',
             'code.min' => 'Поле код должно содержать не менее :min символов',
+            'image' => 'Поле предназначено только для изображений',
         ];
     }
 }
