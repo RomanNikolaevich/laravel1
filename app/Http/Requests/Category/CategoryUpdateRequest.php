@@ -27,6 +27,7 @@ class CategoryUpdateRequest extends FormRequest
             'code'        => 'min:3|max:255|unique:categories,code'.$this->route()?->parameter('category')->id,
             'name'        => 'min:3|max:255',
             'description' => 'min:5',
+            'image' => 'image',
         ];
     }
 
