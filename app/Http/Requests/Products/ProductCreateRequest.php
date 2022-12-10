@@ -13,7 +13,7 @@ class ProductCreateRequest extends FormRequest
      */
     public function authorize():bool
     {
-        return true; //false меняем на true
+        return true;
     }
 
     /**
@@ -24,12 +24,12 @@ class ProductCreateRequest extends FormRequest
     public function rules():array
     {
         return [
-            'code' => 'required|min:3|max:255|unique:products,code',
-            'name' => 'required|min:3|max:255',
+            'code'        => 'required|min:3|max:255|unique:products,code',
+            'name'        => 'required|min:3|max:255',
             'description' => 'required|min:5',
-            'price' => 'required|numeric|min:1',
+            'price'       => 'required|numeric|min:1',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'image',
+            'image'       => 'image',
         ];
     }
 }

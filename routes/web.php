@@ -25,7 +25,7 @@ Route::middleware(['auth'])-> group(function (){
         'prefix' => 'person',
         'namespace' => 'Person',
         'as' => 'person.',
-    ], function () {
+    ], static function () {
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     });
@@ -49,8 +49,8 @@ Route::get('/categories', [MainController::class, 'categories'])->name('categori
 
 Route::group([
     'middleware' => 'basket_not_empty',
-    'prefix'     => 'basket',//по умолчанию добавляет слово basket, теперь слово basket из роута можно удалить
-], function () {
+    'prefix'     => 'basket',
+], static function () {
     Route::get('/', [BasketController::class, 'basket'])->name('basket');
     Route::get('/place', [BasketController::class, 'basketPlace'])->name('basket-place');
 
@@ -62,4 +62,4 @@ Route::post('/basket/add/{id}', [BasketController::class, 'basketAdd'])->name('b
 
 Route::get('/{category}', [MainController::class, 'category'])->name('category');
 Route::get('/{category}/{product?}', [MainController::class, 'product'])
-    ->name('product');//? означает, что этот параметр не обязательный
+    ->name('product');
