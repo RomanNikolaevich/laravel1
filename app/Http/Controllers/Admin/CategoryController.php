@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CategoryRequest;
+use App\Http\Requests\Category\CategoryUpdateRequest;
+use App\Http\Requests\CategoryCreateRequest;
 use App\Models\Category;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -44,7 +45,7 @@ class CategoryController extends Controller
      *
      * @return RedirectResponse
      */
-    public function store(CategoryRequest $request):RedirectResponse
+    public function store(CategoryCreateRequest $request):RedirectResponse
     {
         $params = $request->all();
         unset($params['image']);
@@ -88,7 +89,7 @@ class CategoryController extends Controller
      *
      * @return RedirectResponse
      */
-    public function update(CategoryRequest $request, Category $category):RedirectResponse
+    public function update(CategoryUpdateRequest $request, Category $category):RedirectResponse
     {
         $params = $request->all();
         unset($params['image']);

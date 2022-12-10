@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +12,7 @@ class ProductsTableSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    final public function run():void
     {
         DB::table('products')->insert([
             [
