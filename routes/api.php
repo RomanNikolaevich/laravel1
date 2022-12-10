@@ -19,8 +19,9 @@ use Illuminate\Support\Facades\Route;
 Route::name('api.')
     ->group(static function () {
         Route::apiResource('products', ProductController::class);
+        Route::apiResource('categories', CategoryController::class);
     });
 
-Route::apiResource('category', CategoryController::class);
+
 
 

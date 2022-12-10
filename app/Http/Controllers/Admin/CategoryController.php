@@ -94,7 +94,7 @@ class CategoryController extends Controller
     {
         $params = $request->all();
         unset($params['image']);
-        if ($request->has('image')) { //проверка на существование картинки
+        if ($request->has('image')) {
             Storage::delete('image');
             $params['image'] = $request->file('image')->store('categories');
         }

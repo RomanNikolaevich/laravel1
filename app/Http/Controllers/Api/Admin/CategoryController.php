@@ -77,6 +77,7 @@ class CategoryController extends Controller
                 ->file('image')
                 ?->store('categories');
         }
+
         $category->update($params);
 
         return response()->json($category->toArray());
