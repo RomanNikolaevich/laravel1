@@ -26,16 +26,17 @@ class CategoryCreateRequest extends FormRequest
         return [
             'code'        => 'required|min:3|max:255|unique:categories,code',
             'name'        => 'required|min:3|max:255',
-            'description' => 'required|min:5', //required - означает, что поле обязательно для заполнения
+            'description' => 'required|min:5',
+            'image'       => 'image',
         ];
     }
 
     final public function messages():array
     {
         return [
-            'required' => 'Поле :attribute обязательно для ввода', //attribute указывает название поля на англ
+            'required' => 'Поле :attribute обязательно для ввода',
             'min'      => 'Поле :attribute должно иметь минимум :min символов',
-            'code.min' => 'Поле код должно содержать не менее :min символов', //переводит слово 'code' в 'код'
+            'code.min' => 'Поле код должно содержать не менее :min символов',
         ];
     }
 }

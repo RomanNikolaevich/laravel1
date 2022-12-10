@@ -36,9 +36,9 @@ class CategoryUpdateRequest extends FormRequest
     final public function messages():array
     {
         return [
-            'required' => 'Поле :attribute обязательно для ввода', //attribute указывает название поля на англ
+            'required' => 'Поле :attribute обязательно для ввода',
             'min'      => 'Поле :attribute должно иметь минимум :min символов',
-            'code.min' => 'Поле код должно содержать не менее :min символов', //переводит слово 'code' в 'код'
+            'code.min' => 'Поле код должно содержать не менее :min символов',
         ];
     }
 }

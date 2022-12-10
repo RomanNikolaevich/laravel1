@@ -59,7 +59,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Update category..
+     * Update category.
      *
      * @param CategoryUpdateRequest $request
      * @param Category              $category
@@ -71,7 +71,7 @@ class CategoryController extends Controller
         $params = $request->validated();
         unset($params['image']);
 
-        if ($request->has('image')) { //проверка на существование картинки
+        if ($request->has('image')) {
             Storage::delete('image');
             $params['image'] = $request
                 ->file('image')
