@@ -16,7 +16,7 @@ class ProductController extends Controller
      *
      * @return JsonResponse
      */
-    final public function index(): JsonResponse
+    public function index():JsonResponse
     {
         $products = Product::get();
 
@@ -30,7 +30,7 @@ class ProductController extends Controller
      *
      * @return JsonResponse
      */
-    final public function store(ProductCreateRequest $request): JsonResponse
+    public function store(ProductCreateRequest $request):JsonResponse
     {
         $params = $request->validated();
         unset($params['image']);
@@ -53,7 +53,7 @@ class ProductController extends Controller
      *
      * @return JsonResponse
      */
-    final public function show(Product $product): JsonResponse
+    public function show(Product $product):JsonResponse
     {
         return response()->json($product->toArray());
     }
@@ -62,11 +62,11 @@ class ProductController extends Controller
      * Update product
      *
      * @param ProductUpdateRequest $request
-     * @param Product $product
+     * @param Product              $product
      *
      * @return JsonResponse
      */
-    final public function update(ProductUpdateRequest $request, Product $product): JsonResponse
+    public function update(ProductUpdateRequest $request, Product $product):JsonResponse
     {
         $params = $request->validated();
         unset($params['image']);
@@ -90,7 +90,7 @@ class ProductController extends Controller
      *
      * @return JsonResponse
      */
-    final public function destroy(Product $product): JsonResponse
+    public function destroy(Product $product):JsonResponse
     {
         $product->delete();
 

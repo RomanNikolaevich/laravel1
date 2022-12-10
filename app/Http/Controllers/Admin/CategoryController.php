@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Category\CategoryCreateRequest;
 use App\Http\Requests\Category\CategoryUpdateRequest;
-use App\Http\Requests\CategoryCreateRequest;
 use App\Models\Category;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
@@ -49,11 +48,13 @@ class CategoryController extends Controller
     {
         $params = $request->all();
         unset($params['image']);
-        if ($request->has('image')) {//если в запросе есть картинка, то мы добавляем сохранение
+
+        if ($request->has('image')) {
             $params['image'] = $request->file('image')->store('categories');
-            //image - название поля html верстке в input у кнопки "Загрузить", categories - папка для загрузки картинок
         }
+
         Category::create($params);
+
         return redirect()->route('categories.index');
     }
 
@@ -95,9 +96,10 @@ class CategoryController extends Controller
         unset($params['image']);
         if ($request->has('image')) { //проверка на существование картинки
             Storage::delete('image');
-            $params['image']  = $request->file('image')->store('categories');
+            $params['image'] = $request->file('image')->store('categories');
         }
         $category->update($params);
+
         return redirect()->route('categories.index');
     }
 

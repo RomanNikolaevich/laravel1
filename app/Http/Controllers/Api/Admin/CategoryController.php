@@ -35,10 +35,10 @@ class CategoryController extends Controller
         $params = $request->validated();
         unset($params['image']);
 
-        if ($request->has('image')) {//если в запросе есть картинка, то мы добавляем сохранение
+        if ($request->has('image')) {
             $params['image'] = $request
-                ->file('image') //image - название поля html верстке в input у кнопки "Загрузить",
-                ?->store('categories'); //categories - папка для загрузки картинок
+                ->file('image')
+                ?->store('categories');
         }
 
         $category = Category::create($params);

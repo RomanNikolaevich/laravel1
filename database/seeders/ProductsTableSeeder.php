@@ -12,7 +12,7 @@ class ProductsTableSeeder extends Seeder
      *
      * @return void
      */
-    final public function run():void
+    public function run():void
     {
         DB::table('products')->insert([
             [

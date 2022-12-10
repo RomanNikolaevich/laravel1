@@ -16,10 +16,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-/*Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});*/
-
 Route::name('api.')
     ->group(static function () {
         Route::apiResource('products', ProductController::class);
