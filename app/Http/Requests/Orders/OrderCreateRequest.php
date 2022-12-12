@@ -27,7 +27,7 @@ class OrderCreateRequest extends FormRequest
             'status'  => 'required|boolean',
             'name'    => 'min:3|max:255',
             'phone'   => 'digits:12',
-            'user_id' => 'integer',
+            'user_id' => 'integer|exists:users,id',
         ];
     }
 }

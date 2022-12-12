@@ -24,11 +24,10 @@ class OrderUpdateRequest extends FormRequest
     public function rules():array
     {
         return [
-            'id'  => 'integer' . $this->route()?->parameter('order')->id,
             'status'  => 'boolean',
             'name'    => 'min:3|max:255',
             'phone'   => 'digits:12',
-            'user_id' => 'integer',
+            'user_id' => 'integer|exists:users,id',
         ];
     }
 }
