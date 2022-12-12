@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Category\CategoryCreateRequest;
-use App\Http\Requests\Category\CategoryUpdateRequest;
+use App\Http\Requests\Categories\CategoryCreateRequest;
+use App\Http\Requests\Categories\CategoryUpdateRequest;
 use App\Models\Category;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -50,7 +50,7 @@ class CategoryController extends Controller
         unset($params['image']);
 
         if ($request->has('image')) {
-            $params['image'] = $request->file('image')->store('categories');
+            $params['image'] = $request->file('image')?->store('categories');
         }
 
         Category::create($params);
@@ -94,9 +94,10 @@ class CategoryController extends Controller
     {
         $params = $request->all();
         unset($params['image']);
+
         if ($request->has('image')) {
             Storage::delete('image');
-            $params['image'] = $request->file('image')->store('categories');
+            $params['image'] = $request->file('image')?->store('categories');
         }
         $category->update($params);
 

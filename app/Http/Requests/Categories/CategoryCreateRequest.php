@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Category;
+namespace App\Http\Requests\Categories;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -11,7 +11,7 @@ class CategoryCreateRequest extends FormRequest
      *
      * @return bool
      */
-    final public function authorize():bool
+    public function authorize():bool
     {
         return true;
     }
@@ -21,7 +21,7 @@ class CategoryCreateRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    final public function rules():array
+    public function rules():array
     {
         return [
             'code'        => 'required|min:3|max:255|unique:categories,code',
@@ -31,7 +31,7 @@ class CategoryCreateRequest extends FormRequest
         ];
     }
 
-    final public function messages():array
+    public function messages():array
     {
         return [
             'required' => 'Поле :attribute обязательно для ввода',
