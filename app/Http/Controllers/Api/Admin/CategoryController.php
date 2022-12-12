@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Category\CategoryUpdateRequest;
+use App\Http\Requests\Categories\CategoryUpdateRequest;
 use App\Models\Category;
-use App\Http\Requests\Category\CategoryCreateRequest;
+use App\Http\Requests\Categories\CategoryCreateRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,7 +16,7 @@ class CategoryController extends Controller
      *
      * @return JsonResponse
      */
-    final public function index():JsonResponse
+    public function index():JsonResponse
     {
         $categories = Category::get();
 
@@ -30,7 +30,7 @@ class CategoryController extends Controller
      *
      * @return JsonResponse
      */
-    final public function store(CategoryCreateRequest $request):JsonResponse
+    public function store(CategoryCreateRequest $request):JsonResponse
     {
         $params = $request->validated();
         unset($params['image']);
@@ -53,7 +53,7 @@ class CategoryController extends Controller
      *
      * @return JsonResponse
      */
-    final public function show(Category $category):JsonResponse
+    public function show(Category $category):JsonResponse
     {
         return response()->json($category->toArray());
     }
@@ -66,7 +66,7 @@ class CategoryController extends Controller
      *
      * @return JsonResponse
      */
-    final public function update(CategoryUpdateRequest $request, Category $category):JsonResponse
+    public function update(CategoryUpdateRequest $request, Category $category):JsonResponse
     {
         $params = $request->validated();
         unset($params['image']);
@@ -90,7 +90,7 @@ class CategoryController extends Controller
      *
      * @return JsonResponse
      */
-    final public function destroy(Category $category):JsonResponse
+    public function destroy(Category $category):JsonResponse
     {
         $category->delete();
 

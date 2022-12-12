@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Requests\Category;
+namespace App\Http\Requests\Categories;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CategoryUpdateRequest extends FormRequest
+class CategoryCreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    final public function authorize():bool
+    public function authorize():bool
     {
         return true;
     }
@@ -21,20 +21,17 @@ class CategoryUpdateRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    final public function rules():array
+    public function rules():array
     {
         return [
-            'code'        => 'min:3|max:255|unique:categories,code'.$this->route()?->parameter('category')->id,
-            'name'        => 'min:3|max:255',
-            'description' => 'min:5',
-            'image' => 'image',
+            'code'        => 'required|min:3|max:255|unique:categories,code',
+            'name'        => 'required|min:3|max:255',
+            'description' => 'required|min:5',
+            'image'       => 'image',
         ];
     }
 
-    /**
-     * @return string[]
-     */
-    final public function messages():array
+    public function messages():array
     {
         return [
             'required' => 'Поле :attribute обязательно для ввода',

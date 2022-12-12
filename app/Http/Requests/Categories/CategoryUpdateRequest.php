@@ -1,17 +1,18 @@
 <?php
 
-namespace App\Http\Requests\Category;
+namespace App\Http\Requests\Categories;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class CategoryCreateRequest extends FormRequest
+class CategoryUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    final public function authorize():bool
+    public function authorize():bool
     {
         return true;
     }
@@ -21,23 +22,33 @@ class CategoryCreateRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    final public function rules():array
+    public function rules():array
     {
+        $category = $this->route()?->parameter('category');
+
         return [
-            'code'        => 'required|min:3|max:255|unique:categories,code',
-            'name'        => 'required|min:3|max:255',
-            'description' => 'required|min:5',
+            'code'        => [
+                'min:3',
+                'max:255',
+                Rule::unique('categories', 'code')
+                    ->ignore($category->code),
+            ],
+            'name'        => 'min:3|max:255',
+            'description' => 'min:5',
             'image'       => 'image',
         ];
     }
 
-    final public function messages():array
+    /**
+     * @return string[]
+     */
+    public function messages():array
     {
         return [
             'required' => 'Поле :attribute обязательно для ввода',
             'min'      => 'Поле :attribute должно иметь минимум :min символов',
             'code.min' => 'Поле код должно содержать не менее :min символов',
-            'image' => 'Поле предназначено только для изображений',
+            'image'    => 'Поле предназначено только для изображений',
         ];
     }
 }
