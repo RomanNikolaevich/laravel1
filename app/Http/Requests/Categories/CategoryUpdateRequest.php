@@ -31,7 +31,7 @@ class CategoryUpdateRequest extends FormRequest
                 'min:3',
                 'max:255',
                 Rule::unique('categories', 'code')
-                    ->ignore($category->code),
+                    ->ignore($category->id),
             ],
             'name'        => 'min:3|max:255',
             'description' => 'min:5',
