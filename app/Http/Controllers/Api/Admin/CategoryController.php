@@ -3,14 +3,21 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Categories\CategoryCreateRequest;
 use App\Http\Requests\Categories\CategoryUpdateRequest;
 use App\Models\Category;
-use App\Http\Requests\Categories\CategoryCreateRequest;
+use App\Services\Admin\CategoryService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
+    protected CategoryService $service;
+
+    public function __construct()
+    {
+        $this->service = app(CategoryService::class);
+    }
+
     /**
      * Display a listing of the category.
      *
@@ -18,7 +25,7 @@ class CategoryController extends Controller
      */
     public function index():JsonResponse
     {
-        $categories = Category::get();
+        $categories = $this->service->getList();
 
         return response()->json($categories->toBase());
     }
@@ -32,16 +39,7 @@ class CategoryController extends Controller
      */
     public function store(CategoryCreateRequest $request):JsonResponse
     {
-        $params = $request->validated();
-        unset($params['image']);
-
-        if ($request->has('image')) {
-            $params['image'] = $request
-                ->file('image')
-                ?->store('categories');
-        }
-
-        $category = Category::create($params);
+        $category = $this->service->store($request);
 
         return response()->json($category->toArray(), 201);
     }
@@ -49,8 +47,7 @@ class CategoryController extends Controller
     /**
      * Show category.
      *
-     * @param int $id
-     *
+     * @param Category $category
      * @return JsonResponse
      */
     public function show(Category $category):JsonResponse
@@ -68,17 +65,7 @@ class CategoryController extends Controller
      */
     public function update(CategoryUpdateRequest $request, Category $category):JsonResponse
     {
-        $params = $request->validated();
-        unset($params['image']);
-
-        if ($request->has('image')) {
-            Storage::delete('image');
-            $params['image'] = $request
-                ->file('image')
-                ?->store('categories');
-        }
-
-        $category->update($params);
+        $category = $this->service->update($request, $category);
 
         return response()->json($category->toArray());
     }
@@ -92,7 +79,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category):JsonResponse
     {
-        $category->delete();
+        $category = $this->service->delete($category);
 
         return response()->json($category->toArray());
     }
