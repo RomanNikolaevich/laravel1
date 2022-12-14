@@ -6,11 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Products\ProductCreateRequest;
 use App\Http\Requests\Products\ProductUpdateRequest;
 use App\Models\Product;
+use App\Services\Admin\ProductService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    protected ProductService $service;
+
+    public function __construct()
+    {
+        $this->service = app(ProductService::class);
+    }
+
     /**
      * Display a listing of the product.
      *
@@ -18,7 +25,7 @@ class ProductController extends Controller
      */
     public function index():JsonResponse
     {
-        $products = Product::get();
+        $products = $this->service->getList();
 
         return response()->json($products->toBase());
     }
@@ -32,16 +39,7 @@ class ProductController extends Controller
      */
     public function store(ProductCreateRequest $request):JsonResponse
     {
-        $params = $request->validated();
-        unset($params['image']);
-
-        if ($request->has('image')) {
-            $params['image'] = $request
-                ->file('image')
-                ?->store('products');
-        }
-
-        $product = Product::create($params);
+        $product = $this->service->store($request);
 
         return response()->json($product->toArray(), 201);
     }
@@ -68,17 +66,7 @@ class ProductController extends Controller
      */
     public function update(ProductUpdateRequest $request, Product $product):JsonResponse
     {
-        $params = $request->validated();
-        unset($params['image']);
-
-        if ($request->has('image')) {
-            Storage::delete('image');
-            $params['image'] = $request
-                ->file('image')
-                ?->store('products');
-        }
-
-        $product->update($params);
+        $this->service->update($request, $product);
 
         return response()->json($product->toArray());
     }
@@ -90,9 +78,9 @@ class ProductController extends Controller
      *
      * @return JsonResponse
      */
-    public function destroy(Product $product): JsonResponse
+    public function destroy(Product $product):JsonResponse
     {
-        $product->delete();
+        $product = $this->service->delete($product);
 
         return response()->json($product->toArray());
     }
