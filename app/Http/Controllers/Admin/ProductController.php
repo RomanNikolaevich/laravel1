@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Products\ProductCreateRequest;
 use App\Http\Requests\Products\ProductUpdateRequest;
+use App\Models\Category;
 use App\Models\Product;
 use App\Services\Admin\ProductService;
 use Illuminate\Contracts\Foundation\Application;
@@ -109,7 +110,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product):RedirectResponse
     {
-        $product->delete($product);
+        $this->service->delete($product);
 
         return redirect()->route('products.index');
     }
