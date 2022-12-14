@@ -3,24 +3,33 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Categories\CategoryUpdateRequest;
-use App\Models\Category;
 use App\Http\Requests\Categories\CategoryCreateRequest;
+use App\Http\Requests\Categories\CategoryUpdateRequest;
+use App\Http\Resources\Category\CategoryResource;
+use App\Models\Category;
+use App\Services\Admin\CategoryService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CategoryController extends Controller
 {
+    protected CategoryService $service;
+
+    public function __construct()
+    {
+        $this->service = app(CategoryService::class);
+    }
+
     /**
      * Display a listing of the category.
      *
-     * @return JsonResponse
+     * @return AnonymousResourceCollection
      */
-    public function index():JsonResponse
+    public function index(): AnonymousResourceCollection
     {
-        $categories = Category::get();
+        $categories = $this->service->getList();
 
-        return response()->json($categories->toBase());
+        return CategoryResource::collection($categories);
     }
 
     /**
@@ -28,34 +37,28 @@ class CategoryController extends Controller
      *
      * @param CategoryCreateRequest $request
      *
-     * @return JsonResponse
+     * @return CategoryResource
      */
-    public function store(CategoryCreateRequest $request):JsonResponse
+    public function store(CategoryCreateRequest $request):CategoryResource
     {
-        $params = $request->validated();
-        unset($params['image']);
+        $category = $this->service->store($request);
 
-        if ($request->has('image')) {
-            $params['image'] = $request
-                ->file('image')
-                ?->store('categories');
-        }
+        /** @var CategoryResource $resource */
+        $resource = app(CategoryResource::class, ['resource' => $category]);
+        $resource->response()->setStatusCode(201);
 
-        $category = Category::create($params);
-
-        return response()->json($category->toArray(), 201);
+        return $resource;
     }
 
     /**
      * Show category.
      *
-     * @param int $id
-     *
-     * @return JsonResponse
+     * @param Category $category
+     * @return CategoryResource
      */
-    public function show(Category $category):JsonResponse
+    public function show(Category $category):CategoryResource
     {
-        return response()->json($category->toArray());
+        return app(CategoryResource::class, ['resource' => $category]);
     }
 
     /**
@@ -68,19 +71,9 @@ class CategoryController extends Controller
      */
     public function update(CategoryUpdateRequest $request, Category $category):JsonResponse
     {
-        $params = $request->validated();
-        unset($params['image']);
+        $category = $this->service->update($request, $category);
 
-        if ($request->has('image')) {
-            Storage::delete('image');
-            $params['image'] = $request
-                ->file('image')
-                ?->store('categories');
-        }
-
-        $category->update($params);
-
-        return response()->json($category->toArray());
+        return app(CategoryResource::class, ['resource' => $category]);
     }
 
     /**
@@ -92,8 +85,8 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category):JsonResponse
     {
-        $category->delete();
+        $category = $this->service->delete($category);
 
-        return response()->json($category->toArray());
+        return app(CategoryResource::class, ['resource' => $category]);
     }
 }

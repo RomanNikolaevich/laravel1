@@ -6,15 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Categories\CategoryCreateRequest;
 use App\Http\Requests\Categories\CategoryUpdateRequest;
 use App\Models\Category;
+use App\Services\Admin\CategoryService;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
+    protected CategoryService $service;
+
+    public function __construct()
+    {
+        $this->service = app(CategoryService::class);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -22,7 +28,7 @@ class CategoryController extends Controller
      */
     public function index():View|Factory|Application
     {
-        $categories = Category::get();
+        $categories = $this->service->getList();
 
         return view('auth.categories.index', compact('categories'));
     }
@@ -40,20 +46,13 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param CategoryCreateRequest $request
      *
      * @return RedirectResponse
      */
     public function store(CategoryCreateRequest $request):RedirectResponse
     {
-        $params = $request->all();
-        unset($params['image']);
-
-        if ($request->has('image')) {
-            $params['image'] = $request->file('image')?->store('categories');
-        }
-
-        Category::create($params);
+        $this->service->store($request);
 
         return redirect()->route('categories.index');
     }
@@ -85,21 +84,14 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request  $request
+     * @param CategoryUpdateRequest $request
      * @param Category $category
      *
      * @return RedirectResponse
      */
     public function update(CategoryUpdateRequest $request, Category $category):RedirectResponse
     {
-        $params = $request->all();
-        unset($params['image']);
-
-        if ($request->has('image')) {
-            Storage::delete('image');
-            $params['image'] = $request->file('image')?->store('categories');
-        }
-        $category->update($params);
+        $this->service->update($request, $category);
 
         return redirect()->route('categories.index');
     }
@@ -113,7 +105,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category):RedirectResponse
     {
-        $category->delete();
+        $this->service->delete($category);
 
         return redirect()->route('categories.index');
     }
