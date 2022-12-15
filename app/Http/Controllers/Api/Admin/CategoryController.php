@@ -25,7 +25,7 @@ class CategoryController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index(): AnonymousResourceCollection
+    public function index():AnonymousResourceCollection
     {
         $categories = $this->service->getList();
 
@@ -54,6 +54,7 @@ class CategoryController extends Controller
      * Show category.
      *
      * @param Category $category
+     *
      * @return CategoryResource
      */
     public function show(Category $category):CategoryResource

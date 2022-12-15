@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Products\ProductCreateRequest;
 use App\Http\Requests\Products\ProductUpdateRequest;
+use App\Http\Resources\Product\ProductResource;
 use App\Models\Product;
 use App\Services\Admin\ProductService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ProductController extends Controller
 {
@@ -21,13 +23,13 @@ class ProductController extends Controller
     /**
      * Display a listing of the product.
      *
-     * @return JsonResponse
+     * @return AnonymousResourceCollection
      */
-    public function index():JsonResponse
+    public function index():AnonymousResourceCollection
     {
         $products = $this->service->getList();
 
-        return response()->json($products->toBase());
+        return ProductResource::collection($products);
     }
 
     /**
@@ -35,13 +37,17 @@ class ProductController extends Controller
      *
      * @param ProductCreateRequest $request
      *
-     * @return JsonResponse
+     * @return ProductResource
      */
-    public function store(ProductCreateRequest $request):JsonResponse
+    public function store(ProductCreateRequest $request):ProductResource
     {
         $product = $this->service->store($request);
 
-        return response()->json($product->toArray(), 201);
+        /** @var ProductResource $resource */
+        $resource = app(ProductResource::class, ['resource' => $product]);
+        $resource->response()->setStatusCode(201);
+
+        return $resource;
     }
 
     /**
@@ -49,11 +55,11 @@ class ProductController extends Controller
      *
      * @param Product $product
      *
-     * @return JsonResponse
+     * @return ProductResource
      */
-    public function show(Product $product):JsonResponse
+    public function show(Product $product):ProductResource
     {
-        return response()->json($product->toArray());
+        return app(ProductResource::class, ['resource' => $product]);
     }
 
     /**
@@ -66,9 +72,9 @@ class ProductController extends Controller
      */
     public function update(ProductUpdateRequest $request, Product $product):JsonResponse
     {
-        $this->service->update($request, $product);
+        $product = $this->service->update($request, $product);
 
-        return response()->json($product->toArray());
+        return app(ProductResource::class, ['resource' => $product]);
     }
 
     /**
@@ -82,6 +88,6 @@ class ProductController extends Controller
     {
         $product = $this->service->delete($product);
 
-        return response()->json($product->toArray());
+        return app(ProductResource::class, ['resource' => $product]);
     }
 }
