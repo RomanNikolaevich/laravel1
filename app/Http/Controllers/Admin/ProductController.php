@@ -7,14 +7,21 @@ use App\Http\Requests\Products\ProductCreateRequest;
 use App\Http\Requests\Products\ProductUpdateRequest;
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\Admin\ProductService;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    protected ProductService $service;
+
+    public function __construct()
+    {
+        $this->service = app(ProductService::class);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -22,7 +29,7 @@ class ProductController extends Controller
      */
     public function index():Application|Factory|View
     {
-        $products = Product::get();
+        $products = $this->service->getList();
 
         return view('auth.products.index', compact('products'));
     }
@@ -48,12 +55,8 @@ class ProductController extends Controller
      */
     public function store(ProductCreateRequest $request):RedirectResponse
     {
-        $params = $request->all();
-        unset($params['image']);
-        if ($request->has('image')) {
-            $params['image'] = $request->file('image')?->store('products');
-        }
-        Product::create($params);
+        $this->service->store($request);
+
         return redirect()->route('products.index');
     }
 
@@ -79,6 +82,7 @@ class ProductController extends Controller
     public function edit(Product $product):View|Factory|Application
     {
         $categories = Category::get();
+
         return view('auth.products.form', compact('product', 'categories'));
     }
 
@@ -86,20 +90,14 @@ class ProductController extends Controller
      * Update the specified resource in storage.
      *
      * @param ProductUpdateRequest $request
-     * @param Product $product
+     * @param Product              $product
      *
      * @return RedirectResponse
      */
     public function update(ProductUpdateRequest $request, Product $product):RedirectResponse
     {
-        $params = $request->all();
-        unset($params['image']);
-        if ($request->has('image')) {
-            Storage::delete('image');
-            $params['image'] = $request->file('image')?->store('products');
-        }
+        $this->service->update($request, $product);
 
-        $product->update($params);
         return redirect()->route('products.index');
     }
 
@@ -112,7 +110,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product):RedirectResponse
     {
-        $product->delete();
+        $this->service->delete($product);
 
         return redirect()->route('products.index');
     }

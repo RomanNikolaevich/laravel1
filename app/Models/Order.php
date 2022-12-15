@@ -39,10 +39,6 @@ class Order extends Model
         return $this->belongsToMany(Product::class)->withPivot('count')->withTimestamps();
     }
 
-/*    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }*/
 
     public function getFullPrice():int | float
     {
@@ -62,8 +58,8 @@ class Order extends Model
             $this->save();
             session()->forget('orderId');//убираем из сессии и передаем ключ, по которому должен забыть переменную
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

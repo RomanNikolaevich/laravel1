@@ -4,17 +4,24 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\Admin\OrderService;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
+    protected OrderService $service;
+
+    public function __construct()
+    {
+        $this->service = app(OrderService::class);
+    }
+
     public function index():Factory|View|Application
     {
-        $orders = Order::where('status', 1)->get();
+        $orders = $this->service->getList();
+
         return view('auth.orders.index', compact('orders'));
     }
 
