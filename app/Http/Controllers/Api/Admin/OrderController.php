@@ -5,21 +5,31 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Orders\OrderCreateRequest;
 use App\Http\Requests\Orders\OrderUpdateRequest;
+use App\Http\Resources\Order\OrderResource;
 use App\Models\Order;
+use App\Services\Admin\OrderService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class OrderController extends Controller
 {
+    protected OrderService $service;
+
+    public function __construct()
+    {
+        $this->service = app(OrderService::class);
+    }
+
     /**
      * Display a listing of the order.
      *
-     * @return JsonResponse
+     * @return AnonymousResourceCollection
      */
-    public function index():JsonResponse
+    public function index():AnonymousResourceCollection
     {
-        $orders = Order::where('status', 1)->get();
+        $orders = $this->service->getList();
 
-        return response()->json($orders->toBase());
+        return OrderResource::collection($orders);
     }
 
     /**
@@ -27,15 +37,17 @@ class OrderController extends Controller
      *
      * @param OrderCreateRequest $request
      *
-     * @return JsonResponse
+     * @return OrderResource
      */
-    public function store(OrderCreateRequest $request):JsonResponse
+    public function store(OrderCreateRequest $request):OrderResource
     {
-        $params = $request->validated();
+        $order = $this->service->store($request);
 
-        $order = Order::create($params);
+        /** @var OrderResource $resource */
+        $resource = app(OrderResource::class, ['resource' => $order]);
+        $resource->response()->setStatusCode(201);
 
-        return response()->json($order->toArray(), 201);
+        return $resource;
     }
 
     /**
@@ -43,11 +55,11 @@ class OrderController extends Controller
      *
      * @param Order $order
      *
-     * @return JsonResponse
+     * @return OrderResource
      */
-    public function show(Order $order):JsonResponse
+    public function show(Order $order):OrderResource
     {
-        return response()->json($order->toArray());
+        return app(OrderResource::class, ['resource' => $order]);
     }
 
     /**
@@ -56,15 +68,13 @@ class OrderController extends Controller
      * @param OrderUpdateRequest $request
      * @param Order              $order
      *
-     * @return JsonResponse
+     * @return OrderResource
      */
-    public function update(OrderUpdateRequest $request, Order $order):JsonResponse
+    public function update(OrderUpdateRequest $request, Order $order):OrderResource
     {
-        $params = $request->validated();
+        $order = $this->service->update($request, $order);
 
-        $order->update($params);
-
-        return response()->json($order->toArray(), 201);
+        return app(OrderResource::class, ['resource' => $order]);
     }
 
     /**
@@ -76,8 +86,8 @@ class OrderController extends Controller
      */
     public function destroy(Order $order):JsonResponse
     {
-        $order->delete();
+        $order = $this->service->delete($order);
 
-        return response()->json($order->toArray());
+        return app(OrderResource::class, ['resource' => $order]);
     }
 }
