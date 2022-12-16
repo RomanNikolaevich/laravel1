@@ -24,7 +24,7 @@ class ProductUpdateRequest extends FormRequest
      */
     public function rules():array
     {
-        $product = $this->route()?->parameter('product')->id;
+        $product = $this->route()?->parameter('product');
 
         return [
             'code'        => [
