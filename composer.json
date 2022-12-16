@@ -12,8 +12,7 @@
         "laravel/helpers": "^1.5",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
-        "laravel/ui": "^4.1",
-        "ext-cassandra": "*"
+        "laravel/ui": "^4.1"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",

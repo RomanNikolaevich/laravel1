@@ -2,7 +2,7 @@
 
 namespace App\Models\Traits;
 
-use Cassandra\Exception\LogicException;
+
 use Illuminate\Support\Facades\App;
 
 trait Translatable
@@ -15,11 +15,12 @@ trait Translatable
             $fieldName .= '_en';
         }
 
-        if (in_array($fieldName, $this->getAttributes)) {
-
-        } else {
-            throw new LogicException();
-        }
+//        if (in_array($fieldName, $this->getAttributes)) {
+//
+//        } else {
+//            throw new \LogicException('no such attribute for model '. get_class($this));
+//        }
+        return $this->fieldName;
     }
 
 }

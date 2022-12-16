@@ -12,5 +12,7 @@ return [
     'log_out'      => 'Log Out',
     'current_lang' => 'en',
     'set_lang'     => 'ua',
+    'add_to_bag'   => 'Add to bag',
+    'more'         => 'More',
 
 ];
