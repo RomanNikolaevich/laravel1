@@ -52,7 +52,7 @@
                     <div class="input-group row">
                         <label for="name" class="col-sm-2 col-form-label">Название en: </label>
                         <div class="col-sm-6">
-                            @error('name')
+                            @error('name_en')
                             <span class="alert alert-danger">{{ $message }}</span>
                             @enderror
                             <input type="text" class="form-control" name="name_en" id="name_en"
@@ -78,7 +78,7 @@
                     <div class="input-group row">
                         <label for="description" class="col-sm-2 col-form-label">Описание en: </label>
                         <div class="col-sm-6">
-                            @error('description')
+                            @error('description_en')
                             <span class="alert alert-danger">{{ $message }}</span>
                             @enderror
                             <textarea name="description_en" id="description_en" cols="72"
