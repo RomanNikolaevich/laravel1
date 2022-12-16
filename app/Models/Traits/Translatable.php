@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\App;
 
 trait Translatable
 {
-    protected $defaultLocale = 'ua';
+    protected string $defaultLocale = 'ua';
 
     public function __($originFieldName)
     {
@@ -20,7 +20,7 @@ trait Translatable
 
         $attributes = array_keys($this->attributes);
 
-        if (!in_array($fieldName, $attributes)) {
+        if (!in_array($fieldName, $attributes, true)) {
             throw new \LogicException('no such attribute for model ' . get_class($this));
         }
 
