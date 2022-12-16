@@ -48,6 +48,19 @@
                     </div>
                 </div>
                 <br>
+
+                    <div class="input-group row">
+                        <label for="name" class="col-sm-2 col-form-label">Название en: </label>
+                        <div class="col-sm-6">
+                            @error('name')
+                            <span class="alert alert-danger">{{ $message }}</span>
+                            @enderror
+                            <input type="text" class="form-control" name="name" id="name"
+                                   value="@isset($category){{ $category->name_en }}@endisset">
+                        </div>
+                    </div>
+                    <br>
+
                 <div class="input-group row">
                     <label for="description" class="col-sm-2 col-form-label">Описание: </label>
                     <div class="col-sm-6">
@@ -61,6 +74,21 @@
                     </div>
                 </div>
                 <br>
+
+                    <div class="input-group row">
+                        <label for="description" class="col-sm-2 col-form-label">Описание en: </label>
+                        <div class="col-sm-6">
+                            @error('description')
+                            <span class="alert alert-danger">{{ $message }}</span>
+                            @enderror
+                            <textarea name="description" id="description" cols="72"
+                                      rows="7">@isset($category)
+                                    {{ $category->description_en }}
+                                @endisset</textarea>
+                        </div>
+                    </div>
+                    <br>
+
                     <div class="input-group row">
                         <label for="image" class="col-sm-2 col-form-label">Картинка: </label>
                         <div class="col-sm-10">

@@ -40,7 +40,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'price', 'category_id', 'description', 'image'];
+    protected $fillable = ['name', 'code', 'price', 'category_id', 'description', 'image', 'name_en', 'description_en'];
 
     public function category():BelongsTo
     {

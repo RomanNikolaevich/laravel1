@@ -40,7 +40,7 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code', 'name', 'description', 'image'];
+    protected $fillable = ['code', 'name', 'description', 'image', 'name_en', 'description_en'];
 
     public function products():HasMany
     {
