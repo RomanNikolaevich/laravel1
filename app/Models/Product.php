@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Translatable;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,9 +39,9 @@ use Illuminate\Support\Carbon;
  */
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
-    protected $fillable = ['name', 'code', 'price', 'category_id', 'description', 'image'];
+    protected $fillable = ['name', 'code', 'price', 'category_id', 'description', 'image', 'name_en', 'description_en'];
 
     public function category():BelongsTo
     {

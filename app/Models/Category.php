@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Translatable;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -38,9 +39,9 @@ use Illuminate\Support\Carbon;
  */
 class Category extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
-    protected $fillable = ['code', 'name', 'description', 'image'];
+    protected $fillable = ['code', 'name', 'description', 'image', 'name_en', 'description_en'];
 
     public function products():HasMany
     {

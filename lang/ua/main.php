@@ -12,4 +12,6 @@ return [
     'log_out'      => 'Вийти',
     'current_lang' => 'ua',
     'set_lang'     => 'en',
+    'add_to_bag'   => 'В кошик',
+    'more'   => 'Докладніше',
 ];

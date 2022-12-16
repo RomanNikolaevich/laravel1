@@ -1,14 +1,14 @@
 @extends('layouts.master')
-@section('title', 'товар')
+@section('title', 'Товар')
 @section('content')
-        <h1>iPhone X 64GB</h1>
-        <h2>{{ $product }}</h2>
-        <p>Цена: <b>71990 ₴</b></p>
-        <img src="">
-        <p>Отличный продвинутый телефон с памятью на 64 gb</p>
-
-        <form action="/basket/add/1" method="POST">
-            <button type="submit" class="btn btn-success" role="button">Добавить в корзину</button>
-
-        </form>
+    <h1> {{ $product->name }} </h1>
+    <h2>{{ $product->category->name }}</h2>
+    <p>Цена: <b>{{ $product->price }} грн.</b></p>
+    <img src="{{ Storage::url($product->image) }}">
+    <p>{{ $product->description }}</p>
+    @if($product->isAvailable())
+        <a class="btn btn-success" href="{{ route('basket-add', $product) }}">Добавить в корзину</a>
+    @else
+        Не доступен
+    @endif
 @endsection
