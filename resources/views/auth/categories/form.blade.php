@@ -55,7 +55,7 @@
                             @error('name')
                             <span class="alert alert-danger">{{ $message }}</span>
                             @enderror
-                            <input type="text" class="form-control" name="name" id="name"
+                            <input type="text" class="form-control" name="name_en" id="name_en"
                                    value="@isset($category){{ $category->name_en }}@endisset">
                         </div>
                     </div>
@@ -81,7 +81,7 @@
                             @error('description')
                             <span class="alert alert-danger">{{ $message }}</span>
                             @enderror
-                            <textarea name="description" id="description" cols="72"
+                            <textarea name="description_en" id="description_en" cols="72"
                                       rows="7">@isset($category)
                                     {{ $category->description_en }}
                                 @endisset</textarea>
