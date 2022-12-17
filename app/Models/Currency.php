@@ -9,5 +9,5 @@ class Currency extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['cc', 'rate', 'enable_at'];
+    protected $fillable = ['code', 'rate', 'enable_at'];
 }

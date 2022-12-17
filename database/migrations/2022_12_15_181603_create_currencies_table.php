@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::create('currencies', function (Blueprint $table) {
             $table->id();
-            $table->integer('cc'); //currency code
+            $table->string('code'); //currency code
             $table->integer('rate'); //float converted to integer
             $table->date('enable_at'); //the start date of the exchange
             $table->timestamps();
 
-            $table->index(['cc', 'enable_at']);
+            $table->index(['code', 'enable_at']);
         });
     }
 

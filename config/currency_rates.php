@@ -1,0 +1,26 @@
+<?php
+
+return [
+    /**
+     * URL for obtaining the exchange rate of the National Bank of Ukraine
+     * for example:
+     * 'https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=USD&date=20200302&json',
+     */
+    'api_url' => 'https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange',
+
+
+    /**
+     * list of currencies to write to the database
+     */
+    'currency_list' => [
+        'eur' => 'EUR',
+        'usd' => 'USD',
+    ],
+
+    /**
+     * coefficient for converting from integer to float
+     */
+    'exchange_ratio' => [
+        1000000000,
+    ]
+];
