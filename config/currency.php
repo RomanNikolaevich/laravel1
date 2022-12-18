@@ -12,15 +12,15 @@ return [
     /**
      * list of currencies to write to the database
      */
-    'currency_list' => [
-        'eur' => 'EUR',
-        'usd' => 'USD',
+    'codes' => [
+        'EUR',
+        'USD',
     ],
 
     /**
      * coefficient for converting from integer to float
      */
-    'exchange_ratio' => [
+    'ratio' => [
         1000000000,
     ]
 ];

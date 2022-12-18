@@ -543,6 +543,84 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Currency",
+			"item": [
+				{
+					"name": "RecordRateCurrencies",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/currencies/record-rate?XDEBUG_SESSION_START=PHPSTORM",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"currencies",
+								"record-rate"
+							],
+							"query": [
+								{
+									"key": "XDEBUG_SESSION_START",
+									"value": "PHPSTORM"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ReadRateCurrencies",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data\n",
+									"value": "2022-12-18\n",
+									"type": "text"
+								},
+								{
+									"key": "code",
+									"value": "USD",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost/api/currencies/read-rate?XDEBUG_SESSION_START=PHPSTORM",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"currencies",
+								"read-rate"
+							],
+							"query": [
+								{
+									"key": "XDEBUG_SESSION_START",
+									"value": "PHPSTORM"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

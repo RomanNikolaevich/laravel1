@@ -3,22 +3,27 @@
 namespace App\Services\Admin;
 
 use App\Models\Currency;
+use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Facades\DB;
 
 class CurrencyService
 {
-
-    public $client;
+    private Client $client;
+    private mixed $currencies;
+    private Carbon $dateToday;
 
     public function __construct()
     {
         $this->client = new Client([
-            'base_uri' => 'https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange',
+            'base_uri' => config('currency.api_url'),
             'timeout'  => 2.0,
-            'verify'   => false, //https
+            'verify'   => false,
         ]);
+        $this->dateToday = Carbon::now();
+        $this->currencies = config('currency.codes');
     }
 
     /**
@@ -27,34 +32,59 @@ class CurrencyService
      */
     public function getNewCurrencies()
     {
-        $currencies = config('currency_rates.currency_list');
-        $today = date("Ymd");
-        foreach ($currencies as $currency) {
-            $uri = '?valcode='.$currency.'&date='.$today.'&json';
-            $response = $this->client->request('GET', $uri);
+        //dd(111);
+        foreach ($this->currencies as $currency) {
+//            if ($this->getCurrency($dateToday, $currency)){
+//                continue;
+//            }
+
+            $urn = '?valcode='.$currency.'&date='.$this->dateToday->format('Ymd').'&json';
+            $response = $this->client->request('GET', $urn);
+            //dd(111);
             if ($response->getStatusCode() !== 200) {
-                throw new Exception('There is a probkem with currency rate service');
+                throw new Exception('There is a problem with currency rate service');
             }
-            $rates = json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR);
+            //dd(222);
+            $rates = json_decode(
+                         $response->getBody()->getContents(),
+                         false,
+                         512,
+                         JSON_THROW_ON_ERROR
+                     )[0] ?? [];
 
-            if (!isset($rates[$currency->code])) {
-                throw new Exception('There is a probkem with currency '. $currency->code);
+            //dd($rates->exchangedate);
+//            if (($rates->exchangedate) !== ($this->dateToday->format('Y-m-d')){
+//                    return false;
+//                }
+            if (!isset($rates)) {
+                throw new Exception('There is a problem with currency '.$rates->code);
             }
+            //dd(111);
+//            $currency->update(['rate' => $rates[$currency->code]]);
 
-            $currency->update(['rate' => $rates[$currency->code]]);
+            $currencyData = [
+                'code'       => $rates->code,
+                'rate'       => $rates->rate * config('currency.ratio'),
+                'created_at' => $this->dateToday->format('Y-m-d'),
+            ];
 
-//            return Currency::firstOrCreate(
-//                [
-//                    'code'       => $rates->code,
-//                    'rate'       => $rates->rate * config('currency_rates.exchange_ratio'),
-//                    'created_at' => $rates->enable_at,
-//                ]
-//            );
+            Currency::firstOrCreate($currencyData);
         }
     }
 
-    public function getCurentCurrency()
+    public function getCurrency(mixed $date, string $code):mixed
     {
-        //ToDo
+        $result = DB::table('currencies')->get();
+        //->where('code', $code and 'enable_at', $date)
+        //->where('enable_at', $date)
+        //->value('rate');
+        //->get();
+
+        $val = config('currency.ratio');
+        if (!empty($result)) {
+            return $result[0]->rate / $val;
+        }
+
+        return 'There is no currency exchange rate according to the set parameters';
     }
 }

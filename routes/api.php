@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\OrderController;
 use App\Http\Controllers\Api\Admin\ProductController;
+use App\Services\Admin\CurrencyService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +22,14 @@ Route::name('api.')
         Route::apiResource('products', ProductController::class);
         Route::apiResource('categories', CategoryController::class);
         Route::apiResource('orders', OrderController::class);
+        Route::get('currencies/record-rate', static function () {
+            $service = new CurrencyService();
+            $service->getNewCurrencies();
+        });
+        Route::post('currencies/read-rate', static function () {
+            $service = new CurrencyService();
+            $service->getCurrency('date', 'code');
+        });
     });
 
 
