@@ -16,11 +16,11 @@ return new class extends Migration
         Schema::create('currencies', function (Blueprint $table) {
             $table->id();
             $table->string('code'); //currency code
-            $table->integer('rate'); //float converted to integer
-            $table->date('enable_at'); //the start date of the exchange
+            $table->integer('rate')->unsigned(); //float converted to integer
+            $table->date('enabled_at'); //the start date of the exchange
             $table->timestamps();
 
-            $table->index(['code', 'enable_at']);
+            $table->index(['code', 'enabled_at']);
         });
     }
 

@@ -18,20 +18,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::name('api.')
-    ->group(static function () {
-        Route::apiResource('products', ProductController::class);
-        Route::apiResource('categories', CategoryController::class);
-        Route::apiResource('orders', OrderController::class);
-        Route::get('currencies/record-rate', static function () {
-            $service = new CurrencyService();
-            $service->getNewCurrencies();
-        });
-        Route::post('currencies/read-rate', static function () {
-            $service = new CurrencyService();
-            $service->getCurrency('date', 'code');
-        });
-    });
-
-
-
-
+	->group(static function () {
+		Route::apiResource('products', ProductController::class);
+		Route::apiResource('categories', CategoryController::class);
+		Route::apiResource('orders', OrderController::class);
+		Route::get('currencies/save-rates', static function () {
+			$service = new CurrencyService();
+			$service->getNewCurrenciesToDB();
+		});
+		Route::get('currencies/read-rate', static function () {
+			$service = new CurrencyService();
+			$service->getCurrencyRateFromDB(\Carbon\Carbon::now(), 'USD');
+		});
+	});

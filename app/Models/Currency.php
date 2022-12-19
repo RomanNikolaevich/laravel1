@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Currency extends Model
 {
-    use HasFactory;
+	use HasFactory;
 
-    protected $fillable = ['code', 'rate', 'enable_at'];
+	protected $fillable = ['code', 'rate', 'enabled_at'];
+
+	protected $dates = [
+		'enabled_at',
+	];
 }
