@@ -18,6 +18,11 @@ return [
 	],
 
 	/**
+	 * main currency for calculation
+	 */
+	'codes_main' => 'UAH',
+
+	/**
 	 * coefficient for converting from integer to float
 	 */
 	'ratio' => 100000000,

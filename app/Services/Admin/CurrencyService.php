@@ -62,10 +62,18 @@ class CurrencyService
 	 */
 	public function getNewCurrenciesToDB(): void
 	{
-		$date = Carbon::tomorrow();
+		$timeZone = config('app.timezone');
+
+		if ((int)(Carbon::now($timeZone)->format('h')) >= 16) {
+			$date = Carbon::tomorrow($timeZone);
+		} else {
+			throw new Exception('The new exchange rate will be later at 16:00 '. $timeZone);
+		}
+
 		$currencies = config('currency.codes');
 
 		foreach ($currencies as $currency) {
+
 			if ($this->getCurrencyRateFromDB($date, $currency)) {
 				continue;
 			}
@@ -89,26 +97,23 @@ class CurrencyService
 	/**
 	 * @param Carbon $date
 	 * @param string $code
-	 * @return float|int
+	 * @return float|int|null
 	 * @throws Exception
 	 */
-	public function getCurrencyRateFromDB(Carbon $date, string $code)
+	public function getCurrencyRateFromDB(Carbon $date, string $code): float|int|null
 	{
 		$currencyCollection = Currency::where('code', $code)
 			->where('enabled_at', $date->format('Y-m-d'))
-			->first()
-			->only('rate');
-
-		dd($currencyCollection);
-		$ratio = config('currency.ratio');
+			->get()
+			->pluck('rate')
+			->toArray()[0];
 
 		if ($currencyCollection === null) {
 			throw new Exception('There is no currency exchange rate according to the set parameters');
 		}
 
-		foreach ($currencyCollection as $currency){
-			//dd($currency/$ratio);
-		}
+		$ratio = config('currency.ratio');
 
+		 return $currencyCollection/$ratio;
 	}
 }
