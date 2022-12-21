@@ -20,12 +20,12 @@ class CurrencyService
 		$this->ratio = config('currency.ratio');
 	}
 
+
 	/**
 	 * @param Carbon $date
 	 * @return void
 	 * @throws GuzzleException
 	 * @throws \JsonException
-	 * @throws Exception
 	 */
 	public function updateCurrencies(Carbon $date): void
 	{
@@ -46,6 +46,12 @@ class CurrencyService
 		}
 	}
 
+	/**
+	 * @param Carbon $date
+	 * @param string $code
+	 * @return float|bool|int|null
+	 * @throws Exception
+	 */
 	public function getCurrencyRateFromDB(Carbon $date, string $code): float|bool|int|null
 	{
 		if (!in_array($code, $this->codes, true)) {
@@ -54,13 +60,13 @@ class CurrencyService
 
 		$currencyCollection = Currency::where('code', $code)
 			->where('enabled_at', $date->format('Y-m-d'))
-			->get();
+			->first();
 
 		if ($currencyCollection === null) {
 			return null;
 		}
 
-		$rate = $currencyCollection->toArray()[0]['rate']/$this->ratio;
+		$rate = $currencyCollection->toArray()['rate']/$this->ratio;
 
 		return $rate;
 	}
