@@ -11,9 +11,16 @@
 			"item": [
 				{
 					"name": "Products List",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
 						"url": {
 							"raw": "http://localhost/api/products",
 							"protocol": "http",
@@ -548,7 +555,7 @@
 			"name": "Currency",
 			"item": [
 				{
-					"name": "RecordRateCurrencies",
+					"name": "updateCurrencies",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -559,7 +566,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost/api/currencies/record-rate?XDEBUG_SESSION_START=PHPSTORM",
+							"raw": "http://localhost/api/currencies/save-rates?XDEBUG_SESSION_START=PHPSTORM",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -567,7 +574,7 @@
 							"path": [
 								"api",
 								"currencies",
-								"record-rate"
+								"save-rates"
 							],
 							"query": [
 								{
@@ -580,22 +587,27 @@
 					"response": []
 				},
 				{
-					"name": "ReadRateCurrencies",
+					"name": "getCurrencyRateFromDB",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
-						"method": "POST",
+						"method": "GET",
 						"header": [],
 						"body": {
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "data\n",
-									"value": "2022-12-18\n",
-									"type": "text"
+									"key": "enable_at",
+									"value": "2022-12-18",
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "code",
 									"value": "USD",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								}
 							]
 						},
