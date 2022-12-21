@@ -22,12 +22,13 @@ Route::name('api.')
 		Route::apiResource('products', ProductController::class);
 		Route::apiResource('categories', CategoryController::class);
 		Route::apiResource('orders', OrderController::class);
+
 		Route::get('currencies/save-rates', static function () {
 			$service = new CurrencyService();
-			$service->getNewCurrenciesToDB();
+			$service->updateCurrencies(\Carbon\Carbon::now());
 		});
 		Route::get('currencies/read-rate', static function () {
 			$service = new CurrencyService();
-			$service->getCurrencyRateFromDB(\Carbon\Carbon::now(), 'USD');
+			$service->getCurrencyRateFromDB(\Carbon\Carbon::now(), 'EUR');
 		});
 	});
