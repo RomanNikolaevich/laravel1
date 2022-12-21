@@ -16,16 +16,16 @@ class UpdateCurrencyJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-	private Carbon $data;
+	private Carbon $date;
 
 	/**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Carbon $data)
+    public function __construct(Carbon $date)
     {
-        $this->data = $data;
+        $this->data = $date;
     }
 
     /**
@@ -37,9 +37,9 @@ class UpdateCurrencyJob implements ShouldQueue
 	{
 		$currency = new CurrencyService();
 		try {
-			$currency->updateCurrencies($this->data);
+			$currency->updateCurrencies($this->date);
 		} catch (GuzzleException|\JsonException|\Exception $e) {
-			throw new Exception('no exchange rate for the specified date '.$this->data);
+			throw new Exception('no exchange rate for the specified date '.$this->date);
 		}
 	}
 }

@@ -49,7 +49,7 @@ class CurrencyService
 	public function getCurrencyRateFromDB(Carbon $date, string $code): float|bool|int|null
 	{
 		if (!in_array($code, $this->codes, true)) {
-			return false;
+			throw new Exception('Wrong currency code');
 		}
 
 		$currencyCollection = Currency::where('code', $code)
@@ -57,13 +57,12 @@ class CurrencyService
 			->get();
 
 		if ($currencyCollection === null) {
-			throw new Exception('There is no currency exchange rate according to the set parameters');
+			return null;
 		}
 
-		$currencyCollection->pluck('rate')
-			->toArray()[0];
+		$rate = $currencyCollection->toArray()[0]['rate']/$this->ratio;
 
-		return $currencyCollection / $this->ratio;
+		return $rate;
 	}
 
 	/**
