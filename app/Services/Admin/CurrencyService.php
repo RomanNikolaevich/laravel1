@@ -66,9 +66,16 @@ class CurrencyService
 			return null;
 		}
 
-		$rate = $currencyCollection->toArray()['rate']/$this->ratio;
+		$rate = $currencyCollection['rate']/$this->ratio;
 
 		return $rate;
+	}
+
+	public function getCurrencyType(string $type)
+	{
+		if ($type !== config('currency.codes_main')) {
+			//ToDO: сделать перерасчет цены 'price' из таблицы 'products' в валюте $type по курсу из таблицы 'currencies'
+		}
 	}
 
 	/**

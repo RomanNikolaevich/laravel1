@@ -47,20 +47,4 @@ class Product extends Model
 	{
 		return $this->belongsTo(Category::class);
 	}
-
-	public function getPriceForCount(): float|int
-	{
-		if (!is_null($this->pivot)) {
-			return $this->pivot->count * $this->price;
-		}
-		return $this->price;
-	}
-
-	public function getCurrencyType(string $type)
-	{
-		if ($type !== config('currency.codes_main')) {
-			//ToDO: сделать перерасчет цены 'price' из таблицы 'products' в валюте $type по курсу из таблицы 'currencies'
-			//ToDO: или сделать в 'products' новые поля под другие валюты и этим методом вносить изменения в цену товара - эта идея отпадает, так как нужно тогда кроме цен в разных валютах хранить и несколько вариантов этих цен на разные дни(с учетом изменения курса!).
-		}
-	}
 }
