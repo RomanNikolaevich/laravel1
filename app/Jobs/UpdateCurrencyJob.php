@@ -33,9 +33,8 @@ class UpdateCurrencyJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle(): void
+    public function handle(CurrencyService $currency): void
 	{
-		$currency = new CurrencyService();
 		try {
 			$currency->updateCurrencies($this->date);
 		} catch (GuzzleException|\JsonException|\Exception $e) {
