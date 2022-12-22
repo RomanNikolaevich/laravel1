@@ -13,15 +13,15 @@ use Illuminate\Support\Carbon;
 /**
  * App\Models\Product
  *
- * @property int                $id
- * @property int                $category_id
- * @property string             $name
- * @property string             $code
- * @property string|null        $description
- * @property string|null        $image
- * @property float              $price
- * @property Carbon|null        $created_at
- * @property Carbon|null        $updated_at
+ * @property int $id
+ * @property int $category_id
+ * @property string $name
+ * @property string $code
+ * @property string|null $description
+ * @property string|null $image
+ * @property float $price
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Category|null $category
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
@@ -39,20 +39,20 @@ use Illuminate\Support\Carbon;
  */
 class Product extends Model
 {
-    use HasFactory, Translatable;
+	use HasFactory, Translatable;
 
-    protected $fillable = ['name', 'code', 'price', 'category_id', 'description', 'image', 'name_en', 'description_en'];
+	protected $fillable = ['name', 'code', 'price', 'category_id', 'description', 'image', 'name_en', 'description_en'];
 
-    public function category():BelongsTo
-    {
-        return $this->belongsTo(Category::class);
-    }
+	public function category(): BelongsTo
+	{
+		return $this->belongsTo(Category::class);
+	}
 
-    public function getPriceForCount():float|int
-    {
-        if (!is_null($this->pivot)) {
-            return $this->pivot->count * $this->price;
-        }
-        return $this->price;
-    }
+	public function getPriceForCount():float|int
+	{
+		if (!is_null($this->pivot)) {
+			return $this->pivot->count * $this->price;
+		}
+		return $this->price;
+	}
 }
