@@ -39,22 +39,14 @@ class Order extends Model
         return $this->belongsToMany(Product::class)->withPivot('count')->withTimestamps();
     }
 
-	public function getPriceForCount(): float|int
-	{
-		if (!is_null($this->pivot)) {
-			return $this->pivot->count * $this->price;
-		}
-		return $this->price;
-	}
-
 	public function getFullPrice():int | float
-    {
-        $sum = 0;
-        foreach ($this->products as $product) {
-            $sum += $this->getPriceForCount();
-        }
-        return $sum;
-    }
+	{
+		$sum = 0;
+		foreach ($this->products as $product) {
+			$sum += $product->getPriceForCount();
+		}
+		return $sum;
+	}
 
     public function saveOrder(string $name, int $phone):bool
     {
