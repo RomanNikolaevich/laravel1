@@ -1,9 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\CurrencyController;
 use App\Http\Controllers\Api\Admin\OrderController;
 use App\Http\Controllers\Api\Admin\ProductController;
-use App\Services\Admin\CurrencyService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,12 +23,6 @@ Route::name('api.')
 		Route::apiResource('categories', CategoryController::class);
 		Route::apiResource('orders', OrderController::class);
 
-		Route::get('currencies/save-rates', static function () {
-			$service = new CurrencyService();
-			$service->updateCurrencies(\Carbon\Carbon::now());
-		});
-		Route::get('currencies/read-rate', static function () {
-			$service = new CurrencyService();
-			$service->getCurrencyRateFromDB(\Carbon\Carbon::now(), 'EUR');
-		});
+		Route::get('currencies/save-rates', [CurrencyController::class, 'saveRates'])->name('currencies.save');
+		Route::get('currencies/read-rate', [CurrencyController::class, 'readRate'])->name('currencies.read');
 	});
