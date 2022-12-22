@@ -566,7 +566,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost/api/currencies/save-rates?XDEBUG_SESSION_START=PHPSTORM",
+							"raw": "http://localhost/api/currencies/update-rates?XDEBUG_SESSION_START=PHPSTORM",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -574,7 +574,7 @@
 							"path": [
 								"api",
 								"currencies",
-								"save-rates"
+								"update-rates"
 							],
 							"query": [
 								{
