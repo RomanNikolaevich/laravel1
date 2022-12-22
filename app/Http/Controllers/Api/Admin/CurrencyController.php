@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\Admin\CurrencyService;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Http\Request;
 
 class CurrencyController extends Controller
 {
@@ -14,7 +13,7 @@ class CurrencyController extends Controller
 	 * @throws GuzzleException
 	 * @throws \JsonException
 	 */
-	public static function saveRates(): void
+	public static function updateRates(): void
 	{
 		$service = new CurrencyService();
 		$service->updateCurrencies(\Carbon\Carbon::now());
