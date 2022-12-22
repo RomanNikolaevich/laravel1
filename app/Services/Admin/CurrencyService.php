@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use phpDocumentor\Reflection\Types\Integer;
 
 class CurrencyService
 {

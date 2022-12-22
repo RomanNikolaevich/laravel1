@@ -6,7 +6,6 @@ use App\Services\Admin\CurrencyService;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -19,21 +18,22 @@ class UpdateCurrencyJob implements ShouldQueue
 	private Carbon $date;
 
 	/**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct(Carbon $date)
+	 * reate a new job instance.
+	 *
+	 * @param Carbon $date
+	 */
+	public function __construct(Carbon $date)
     {
         $this->data = $date;
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
-    public function handle(CurrencyService $currency): void
+	/**
+	 * Execute the job.
+	 *
+	 * @param CurrencyService $currency
+	 * @return void
+	 */
+	public function handle(CurrencyService $currency): void
 	{
 		try {
 			$currency->updateCurrencies($this->date);
