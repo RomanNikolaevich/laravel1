@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Services\Admin\CurrencyService;
 use Carbon\Carbon;
-use GuzzleHttp\Exception\GuzzleException;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,7 +24,7 @@ class UpdateCurrencyJob implements ShouldQueue
 	 */
 	public function __construct(Carbon $date)
     {
-        $this->data = $date;
+        $this->date = $date;
     }
 
 	/**
@@ -37,7 +37,7 @@ class UpdateCurrencyJob implements ShouldQueue
 	{
 		try {
 			$currency->updateCurrencies($this->date);
-		} catch (GuzzleException|\JsonException|\Exception $e) {
+		} catch (\Exception) {
 			throw new Exception('no exchange rate for the specified date '.$this->date);
 		}
 	}

@@ -4,6 +4,7 @@ namespace App\Console;
 
 
 use App\Jobs\UpdateCurrencyJob;
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -17,7 +18,7 @@ class Kernel extends ConsoleKernel
 	 */
 	protected function schedule(Schedule $schedule): void
 	{
-		$schedule->job(UpdateCurrencyJob::class)->dailyAt('16:00');
+		$schedule->job(new UpdateCurrencyJob(Carbon::tomorrow()))->dailyAt('16:00');
 	}
 
 	/**

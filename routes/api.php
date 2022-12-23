@@ -24,5 +24,5 @@ Route::name('api.')
 		Route::apiResource('orders', OrderController::class);
 
 		Route::get('currencies/update-rates', [CurrencyController::class, 'updateRates'])->name('currencies.update_rates');
-		Route::get('currencies/read-rate', [CurrencyController::class, 'readRate'])->name('currencies.read');
+		Route::get('currencies/read-rate', [CurrencyController::class, 'readRate'])->name('currencies.read_rate');
 	});

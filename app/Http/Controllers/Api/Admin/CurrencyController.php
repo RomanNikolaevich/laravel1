@@ -16,7 +16,7 @@ class CurrencyController extends Controller
 	public static function updateRates(): void
 	{
 		$service = new CurrencyService();
-		$service->updateCurrencies(\Carbon\Carbon::now());
+		$service->updateCurrencies(\Carbon\Carbon::tomorrow());
 	}
 
 	/**
