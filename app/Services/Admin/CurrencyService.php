@@ -3,10 +3,12 @@
 namespace App\Services\Admin;
 
 use App\Models\Currency;
+use App\Models\Product;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Facades\Cache;
 
 class CurrencyService
 {
@@ -21,6 +23,8 @@ class CurrencyService
 
 
 	/**
+	 * Entering exchange rates into our database from an external source
+	 *
 	 * @param Carbon $date
 	 * @return void
 	 * @throws GuzzleException
@@ -46,6 +50,8 @@ class CurrencyService
 	}
 
 	/**
+	 * Getting the exchange rate for a specified date from our database
+	 *
 	 * @param Carbon $date
 	 * @param string $code
 	 * @return float|bool|int|null
@@ -67,10 +73,47 @@ class CurrencyService
 
 		$rate = $currencyCollection['rate'] / $this->ratio;
 
-		return $rate;
+		return Cache::remember('rate', 60 * 60 * 24, function () use ($rate) {
+			return $rate;
+		});
 	}
 
 	/**
+	 * Getting the price of a product in the specified currency
+	 *
+	 * @param int $id
+	 * @return int|float|null
+	 */
+	public function getDefaultPriceFromDB(int $id): int|float|null
+	{
+		$defaultPrice = Product::where('id', $id)->first();
+		if ($defaultPrice === null) {
+			return null;
+		}
+		return $defaultPrice['price'];
+	}
+
+
+	/**
+	 * Calculation of the price of goods in the specified currency with rounding to a significant figure
+	 *
+	 * @param Carbon $date
+	 * @param string $code
+	 * @param int $id
+	 * @return float|int
+	 * @throws Exception
+	 */
+	public function convertPrice(Carbon $date, string $code, int $id): float|int|null
+	{
+		$priceBeforeRounding = $this->getDefaultPriceFromDB($id) / $this->getCurrencyRateFromDB($date, $code);
+		$precision = config('currency.precision');
+		$convertPrice = $this->numberToSignificant($priceBeforeRounding, $precision);
+		return $convertPrice;
+	}
+
+	/**
+	 * This Client is a Guzzle(PHP HTTP client)
+	 *
 	 * @return Client
 	 */
 	private function getClient(): Client
@@ -83,6 +126,8 @@ class CurrencyService
 	}
 
 	/**
+	 *
+	 *
 	 * @param Carbon $date
 	 * @return array|null
 	 * @throws GuzzleException
@@ -110,5 +155,23 @@ class CurrencyService
 		}
 
 		return $rateCurrency;
+	}
+
+	/**
+	 * rounding to significant numbers
+	 *
+	 * @param int|float|null $number
+	 * @param int $precision
+	 * @return float|int|null
+	 */
+	private function numberToSignificant(int|float|null $number, int $precision): float|int|null
+	{
+		if ($number === 0) {
+			return null;
+		}
+
+		$exponent = floor(log10(abs($number)) + 1);
+		$significant = round(($number / (10 ** $exponent)) * (10 ** $precision)) / (10 ** $precision);
+		return $significant * (10 ** $exponent);
 	}
 }

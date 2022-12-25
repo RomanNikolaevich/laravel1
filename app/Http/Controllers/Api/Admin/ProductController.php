@@ -7,6 +7,7 @@ use App\Http\Requests\Products\ProductCreateRequest;
 use App\Http\Requests\Products\ProductUpdateRequest;
 use App\Http\Resources\Product\ProductResource;
 use App\Models\Product;
+use App\Services\Admin\CurrencyService;
 use App\Services\Admin\ProductService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -31,6 +32,18 @@ class ProductController extends Controller
 
         return ProductResource::collection($products);
     }
+
+	/**
+	 * @param string $currency
+	 * @param int $id
+	 * @return float|int|null
+	 * @throws \Exception
+	 */
+	public function priceConvert(string $currency, int $id): float|int|null
+	{
+		$date = \Carbon\Carbon::today();
+		return (new CurrencyService())->convertPrice($date, $currency, $id);
+	}
 
     /**
      * Created product
