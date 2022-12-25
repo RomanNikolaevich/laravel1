@@ -10,80 +10,80 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
-    /**
-     * Get category list
-     *
-     * @return Collection
-     */
-    public function getList():Collection
-    {
-        return Product::get();
-    }
+	/**
+	 * Get category list
+	 *
+	 * @return Collection
+	 */
+	public function getList(): Collection
+	{
+		return Product::get();
+	}
 
-    /**
-     * Store new product
-     *
-     * @param ProductCreateRequest $request
-     *
-     * @return Product
-     */
-    public function store(ProductCreateRequest $request):Product
-    {
-        $params = $request->all();
-        unset($params['image']);
+	/**
+	 * Store new product
+	 *
+	 * @param ProductCreateRequest $request
+	 *
+	 * @return Product
+	 */
+	public function store(ProductCreateRequest $request): Product
+	{
+		$params = $request->all();
+		unset($params['image']);
 
-        if ($request->has('image')) {
-            $params['image'] = $request
-                ->file('image')
-                ?->store('products');
-        }
+		if ($request->has('image')) {
+			$params['image'] = $request
+				->file('image')
+				?->store('products');
+		}
 
-        return Product::create($params);
-    }
+		return Product::create($params);
+	}
 
-    /**
-     * Update product
-     *
-     * @param ProductUpdateRequest $request
-     * @param Product              $product
-     *
-     * @return Product
-     */
-    public function update(ProductUpdateRequest $request, Product $product):Product
-    {
-        $params = $request->all();
-        unset($params['image']);
+	/**
+	 * Update product
+	 *
+	 * @param ProductUpdateRequest $request
+	 * @param Product $product
+	 *
+	 * @return Product
+	 */
+	public function update(ProductUpdateRequest $request, Product $product): Product
+	{
+		$params = $request->all();
+		unset($params['image']);
 
-        if ($request->has('image')) {
-            if (!empty($product->image) && Storage::exists($product->image)) {
-                Storage::delete('image');
-            }
+		if ($request->has('image')) {
+			if (!empty($product->image) && Storage::exists($product->image)) {
+				Storage::delete('image');
+			}
 
-            $params['image'] = $request
-                ->file('image')
-                ?->store('products');
-        }
+			$params['image'] = $request
+				->file('image')
+				?->store('products');
+		}
 
-        $product->update($params);
+		$product->update($params);
 
-        return $product;
-    }
+		return $product;
+	}
 
-    /**
-     * Delete product
-     *
-     * @param Product $product
-     *
-     * @return Product
-     */
-    public function delete(Product $product):Product
-    {
-        $product->delete();
+	/**
+	 * Delete product
+	 *
+	 * @param Product $product
+	 *
+	 * @return Product
+	 */
+	public function delete(Product $product): Product
+	{
+		$product->delete();
 
-        if (!empty($product->image) && Storage::exists($product->image)) {
-            Storage::delete($product->image);
-        }
+		if (!empty($product->image) && Storage::exists($product->image)) {
+			Storage::delete($product->image);
+		}
 
-        return $product;
-    }
+		return $product;
+	}
 }

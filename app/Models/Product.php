@@ -43,11 +43,17 @@ class Product extends Model
 
 	protected $fillable = ['name', 'code', 'price', 'category_id', 'description', 'image', 'name_en', 'description_en'];
 
+	/**
+	 * @return BelongsTo
+	 */
 	public function category(): BelongsTo
 	{
 		return $this->belongsTo(Category::class);
 	}
 
+	/**
+	 * @return float|int
+	 */
 	public function getPriceForCount():float|int
 	{
 		if (!is_null($this->pivot)) {
