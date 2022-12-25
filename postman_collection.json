@@ -36,6 +36,34 @@
 					"response": []
 				},
 				{
+					"name": "Products List Price Convert",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "http://localhost/api/products/1/usd",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"products",
+								"1",
+								"usd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Products Create",
 					"request": {
 						"method": "POST",
@@ -439,8 +467,28 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "status",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Roman",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "380951111111",
+									"type": "text"
+								}
+							]
+						},
 						"url": {
-							"raw": "http://localhost/api/orders?status=1&name=Roman&phone=380951111111",
+							"raw": "http://localhost/api/orders",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -448,20 +496,6 @@
 							"path": [
 								"api",
 								"orders"
-							],
-							"query": [
-								{
-									"key": "status",
-									"value": "1"
-								},
-								{
-									"key": "name",
-									"value": "Roman"
-								},
-								{
-									"key": "phone",
-									"value": "380951111111"
-								}
 							]
 						}
 					},
@@ -555,7 +589,7 @@
 			"name": "Currency",
 			"item": [
 				{
-					"name": "updateCurrencies",
+					"name": "updateRates",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -587,7 +621,7 @@
 					"response": []
 				},
 				{
-					"name": "getCurrencyRateFromDB",
+					"name": "readRate",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -621,6 +655,38 @@
 								"api",
 								"currencies",
 								"read-rate"
+							],
+							"query": [
+								{
+									"key": "XDEBUG_SESSION_START",
+									"value": "PHPSTORM"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "convertPrice",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/currencies/price?XDEBUG_SESSION_START=PHPSTORM",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"currencies",
+								"price"
 							],
 							"query": [
 								{
