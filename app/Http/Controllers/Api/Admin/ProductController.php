@@ -14,93 +14,119 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ProductController extends Controller
 {
-    protected ProductService $service;
+	protected ProductService $productService;
 
-    public function __construct()
-    {
-        $this->service = app(ProductService::class);
-    }
+	protected CurrencyService $currencytService;
 
-    /**
-     * Display a listing of the product.
-     *
-     * @return AnonymousResourceCollection
-     */
-    public function index():AnonymousResourceCollection
-    {
-        $products = $this->service->getList();
-
-        return ProductResource::collection($products);
-    }
-
-	/**
-	 * @param string $currency
-	 * @param int $id
-	 * @return float|int|null
-	 * @throws \Exception
-	 */
-	public function priceConvert(string $currency, int $id): float|int|null
+	public function __construct()
 	{
-		$date = \Carbon\Carbon::today();
-		return (new CurrencyService())->convertPrice($date, $currency, $id);
+		$this->productService = app(ProductService::class);
+		$this->currencytService = app(CurrencyService::class);
 	}
 
-    /**
-     * Created product
-     *
-     * @param ProductCreateRequest $request
-     *
-     * @return ProductResource
-     */
-    public function store(ProductCreateRequest $request):ProductResource
-    {
-        $product = $this->service->store($request);
+	/**
+	 * Display a listing of the product with default currency.
+	 *
+	 * @return AnonymousResourceCollection
+	 */
+	public function index(): AnonymousResourceCollection
+	{
+		$products = $this->productService->getList();
 
-        /** @var ProductResource $resource */
-        $resource = app(ProductResource::class, ['resource' => $product]);
-        $resource->response()->setStatusCode(201);
+		return ProductResource::collection($products);
+	}
 
-        return $resource;
-    }
+	/**
+	 * Display a listing of the product with any currency.
+	 *
+	 * @return AnonymousResourceCollection
+	 */
+	public function indexPriceConvert(string $currency): AnonymousResourceCollection
+	{
+		$products = $this->productService->getList();
+		$mappedcollection = $products->map(function ($product, $key) use ($currency) {
+			return [
+				'id' => $product->id,
+				'price' =>  $this->currencytService->convertPrice(now(), $currency, $product->price),
+			];
+		});
 
-    /**
-     * Show product
-     *
-     * @param Product $product
-     *
-     * @return ProductResource
-     */
-    public function show(Product $product):ProductResource
-    {
-        return app(ProductResource::class, ['resource' => $product]);
-    }
+		dd($mappedcollection);
 
-    /**
-     * Update product
-     *
-     * @param ProductUpdateRequest $request
-     * @param Product              $product
-     *
-     * @return JsonResponse
-     */
-    public function update(ProductUpdateRequest $request, Product $product):JsonResponse
-    {
-        $product = $this->service->update($request, $product);
+//		$products = $this->productService->getList();
+//
+//		return ProductResource::collection($products);
+	}
 
-        return app(ProductResource::class, ['resource' => $product]);
-    }
+	/**
+	 * Created product
+	 *
+	 * @param ProductCreateRequest $request
+	 *
+	 * @return ProductResource
+	 */
+	public function store(ProductCreateRequest $request): ProductResource
+	{
+		$product = $this->productService->store($request);
 
-    /**
-     * Remove product
-     *
-     * @param Product $product
-     *
-     * @return JsonResponse
-     */
-    public function destroy(Product $product):JsonResponse
-    {
-        $product = $this->service->delete($product);
+		/** @var ProductResource $resource */
+		$resource = app(ProductResource::class, ['resource' => $product]);
+		$resource->response()->setStatusCode(201);
 
-        return app(ProductResource::class, ['resource' => $product]);
-    }
+		return $resource;
+	}
+
+	/**
+	 * Show product with default currency
+	 *
+	 * @param Product $product
+	 *
+	 * @return ProductResource
+	 */
+	public function show(Product $product): ProductResource
+	{
+		return app(ProductResource::class, ['resource' => $product]);
+	}
+
+	/**
+	 * Show product with any currency
+	 *
+	 * @param Product $product
+	 *
+	 * @return ProductResource
+	 */
+	public function showPriceConvert(Product $product, string $currency): ProductResource
+	{
+		 $show = app(ProductResource::class, ['resource' => $product]);
+		return $show;
+	}
+
+	/**
+	 * Update product
+	 *
+	 * @param ProductUpdateRequest $request
+	 * @param Product $product
+	 *
+	 * @return JsonResponse
+	 */
+	public function update(ProductUpdateRequest $request, Product $product): JsonResponse
+	{
+		$product = $this->productService->update($request, $product);
+
+		return app(ProductResource::class, ['resource' => $product]);
+	}
+
+	/**
+	 * Remove product
+	 *
+	 * @param Product $product
+	 *
+	 * @return JsonResponse
+	 */
+	public function destroy(Product $product): JsonResponse
+	{
+		$product = $this->productService->delete($product);
+
+		return app(ProductResource::class, ['resource' => $product]);
+	}
 }

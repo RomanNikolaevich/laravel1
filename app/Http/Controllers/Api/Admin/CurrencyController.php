@@ -30,15 +30,4 @@ class CurrencyController extends Controller
 	{
 		app(CurrencyService::class)->getCurrencyRateFromDB(\Carbon\Carbon::now(), 'EUR');
 	}
-
-	/**
-	 * Test single goods price convert
-	 *
-	 * @return int|float|null
-	 * @throws \Exception
-	 */
-	public static function convertPrice(): int|float|null
-	{
-		return app(CurrencyService::class)->convertPrice(\Carbon\Carbon::today(), 'USD', 2);
-	}
 }

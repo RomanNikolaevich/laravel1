@@ -3,7 +3,6 @@
 namespace App\Services\Admin;
 
 use App\Models\Currency;
-use App\Models\Product;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
@@ -64,8 +63,8 @@ class CurrencyService
 		}
 
 		$currencyCollection = Currency::where('code', $code)
-			->where('enabled_at', $date->format('Y-m-d'))
-			->first();
+									  ->where('enabled_at', $date->format('Y-m-d'))
+									  ->first();
 
 		if ($currencyCollection === null) {
 			return null;
@@ -79,22 +78,6 @@ class CurrencyService
 	}
 
 	/**
-	 * Getting the price of a product in the specified currency
-	 *
-	 * @param int $id
-	 * @return int|float|null
-	 */
-	public function getDefaultPriceFromDB(int $id): int|float|null
-	{
-		$defaultPrice = Product::where('id', $id)->first();
-		if ($defaultPrice === null) {
-			return null;
-		}
-		return $defaultPrice['price'];
-	}
-
-
-	/**
 	 * Calculation of the price of goods in the specified currency with rounding to a significant figure
 	 *
 	 * @param Carbon $date
@@ -103,11 +86,12 @@ class CurrencyService
 	 * @return float|int
 	 * @throws Exception
 	 */
-	public function convertPrice(Carbon $date, string $code, int $id): float|int|null
+	public function convertPrice(Carbon $date, string $code, int|float $priceInDefaultCurrency): float|int|null
 	{
-		$priceBeforeRounding = $this->getDefaultPriceFromDB($id) / $this->getCurrencyRateFromDB($date, $code);
+		$priceBeforeRounding = $priceInDefaultCurrency / $this->getCurrencyRateFromDB($date, $code);
 		$precision = config('currency.precision');
 		$convertPrice = $this->numberToSignificant($priceBeforeRounding, $precision);
+
 		return $convertPrice;
 	}
 
@@ -172,6 +156,7 @@ class CurrencyService
 
 		$exponent = floor(log10(abs($number)) + 1);
 		$significant = round(($number / (10 ** $exponent)) * (10 ** $precision)) / (10 ** $precision);
+
 		return $significant * (10 ** $exponent);
 	}
 }
