@@ -5,85 +5,116 @@ namespace App\Services\Admin;
 use App\Http\Requests\Products\ProductCreateRequest;
 use App\Http\Requests\Products\ProductUpdateRequest;
 use App\Models\Product;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
-	/**
-	 * Get category list
-	 *
-	 * @return Collection
-	 */
-	public function getList(): Collection
-	{
-		return Product::get();
-	}
+    /**
+     * Get category list
+     *
+     * @param string $code
+     * @return Collection
+     */
+    public function getList(?string $code): Collection
+    {
+        $date = Carbon::now();
+        $defaultCode = config('currency.default_code');
+        $products = Product::get();
 
-	/**
-	 * Store new product
-	 *
-	 * @param ProductCreateRequest $request
-	 *
-	 * @return Product
-	 */
-	public function store(ProductCreateRequest $request): Product
-	{
-		$params = $request->all();
-		unset($params['image']);
+        /** @var CurrencyService $currencyService */
+        $currencyService = app(CurrencyService::class);
 
-		if ($request->has('image')) {
-			$params['image'] = $request
-				->file('image')
-				?->store('products');
-		}
+        foreach ($products as $product) {
+            if ($code !== $defaultCode | null) {
+                $product->price = $currencyService->convertPrice($date, $code, $product->price);
+            }
+        }
 
-		return Product::create($params);
-	}
+        return $products;
+    }
 
-	/**
-	 * Update product
-	 *
-	 * @param ProductUpdateRequest $request
-	 * @param Product $product
-	 *
-	 * @return Product
-	 */
-	public function update(ProductUpdateRequest $request, Product $product): Product
-	{
-		$params = $request->all();
-		unset($params['image']);
+    public function show(Product $product, string $code): Product
+    {
+        $date = Carbon::now();
+        $defaultCode = config('currency.default_code');
 
-		if ($request->has('image')) {
-			if (!empty($product->image) && Storage::exists($product->image)) {
-				Storage::delete('image');
-			}
+        if ($code === $defaultCode | null) {
+            return $product;
+        }
 
-			$params['image'] = $request
-				->file('image')
-				?->store('products');
-		}
+        /** @var CurrencyService $currencyService */
+        $currencyService = app(CurrencyService::class);
+        $product->price = $currencyService->convertPrice($date, $code, $product->price);
 
-		$product->update($params);
+        return $product;
+    }
 
-		return $product;
-	}
+    /**
+     * Store new product
+     *
+     * @param ProductCreateRequest $request
+     *
+     * @return Product
+     */
+    public function store(ProductCreateRequest $request): Product
+    {
+        $params = $request->all();
+        unset($params['image']);
 
-	/**
-	 * Delete product
-	 *
-	 * @param Product $product
-	 *
-	 * @return Product
-	 */
-	public function delete(Product $product): Product
-	{
-		$product->delete();
+        if ($request->has('image')) {
+            $params['image'] = $request
+                ->file('image')
+                ?->store('products');
+        }
 
-		if (!empty($product->image) && Storage::exists($product->image)) {
-			Storage::delete($product->image);
-		}
+        return Product::create($params);
+    }
 
-		return $product;
-	}
+    /**
+     * Update product
+     *
+     * @param ProductUpdateRequest $request
+     * @param Product $product
+     *
+     * @return Product
+     */
+    public function update(ProductUpdateRequest $request, Product $product): Product
+    {
+        $params = $request->all();
+        unset($params['image']);
+
+        if ($request->has('image')) {
+            if (!empty($product->image) && Storage::exists($product->image)) {
+                Storage::delete('image');
+            }
+
+            $params['image'] = $request
+                ->file('image')
+                ?->store('products');
+        }
+
+        $product->update($params);
+
+        return $product;
+    }
+
+    /**
+     * Delete product
+     *
+     * @param Product $product
+     *
+     * @return Product
+     */
+    public function delete(Product $product): Product
+    {
+        $product->delete();
+
+        if (!empty($product->image) && Storage::exists($product->image)) {
+            Storage::delete($product->image);
+        }
+
+        return $product;
+    }
 }
