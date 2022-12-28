@@ -17,17 +17,18 @@ class ProductService
      * @param string $code
      * @return Collection
      */
-    public function getList(?string $code): Collection
+    public function getList(string $code): Collection
     {
         $date = Carbon::now();
         $defaultCode = config('currency.default_code');
+        $code = strtoupper($code);
         $products = Product::get();
 
         /** @var CurrencyService $currencyService */
         $currencyService = app(CurrencyService::class);
 
         foreach ($products as $product) {
-            if ($code !== $defaultCode | null) {
+            if ($code !== $defaultCode) {
                 $product->price = $currencyService->convertPrice($date, $code, $product->price);
             }
         }
@@ -39,8 +40,9 @@ class ProductService
     {
         $date = Carbon::now();
         $defaultCode = config('currency.default_code');
+        $code = strtoupper($code);
 
-        if ($code === $defaultCode | null) {
+        if ($code === $defaultCode) {
             return $product;
         }
 

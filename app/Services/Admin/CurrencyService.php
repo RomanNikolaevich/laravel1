@@ -56,8 +56,10 @@ class CurrencyService
      * @param string $code
      * @return float|bool|int|null
      */
-    public function getCurrencyRateFromDB(Carbon $date, ?string $code): float|bool|int|null
+    public function getCurrencyRateFromDB(Carbon $date, string $code): float|bool|int|null
     {
+        $code = strtoupper($code);
+
         if (!empty(cache('rate_'.$code))) {
             return cache('rate_'.$code);
         }
@@ -92,6 +94,7 @@ class CurrencyService
     {
         /** @var string $defaultCode */
         $defaultCode = config('currency.default_code');
+        $code = strtoupper($code);
 
         if ($code === $defaultCode) {
             return $priceInDefaultCurrency;

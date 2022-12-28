@@ -31,7 +31,7 @@ class ProductController extends Controller
     {
         $defaultCode = config('currency.default_code');
         $code = $request->get('currency', $defaultCode);
-        $products = $this->productService->getList(strtoupper($code));
+        $products = $this->productService->getList($code);
 
         return ProductResource::collection($products);
     }
@@ -65,7 +65,7 @@ class ProductController extends Controller
     {
         $defaultCode = config('currency.default_code');
         $code = $request->get('currency', $defaultCode);
-        $this->productService->show($product, strtoupper($code));
+        $this->productService->show($product, $code);
 
         return app(ProductResource::class, ['resource' => $product]);
 
