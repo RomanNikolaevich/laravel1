@@ -68,9 +68,9 @@ class CategoryController extends Controller
      * @param CategoryUpdateRequest $request
      * @param Category              $category
      *
-     * @return JsonResponse
+     * @return CategoryResource
      */
-    public function update(CategoryUpdateRequest $request, Category $category):JsonResponse
+    public function update(CategoryUpdateRequest $request, Category $category):CategoryResource
     {
         $category = $this->service->update($request, $category);
 

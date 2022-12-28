@@ -18,11 +18,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::name('api.')
-	->group(static function () {
-		Route::apiResource('products', ProductController::class);
-		Route::apiResource('categories', CategoryController::class);
-		Route::apiResource('orders', OrderController::class);
+	 ->group(static function () {
+		 Route::apiResource('products', ProductController::class);
+		 Route::apiResource('categories', CategoryController::class);
+		 Route::apiResource('orders', OrderController::class);
 
-		Route::get('currencies/update-rates', [CurrencyController::class, 'updateRates'])->name('currencies.update_rates');
-		Route::get('currencies/read-rate', [CurrencyController::class, 'readRate'])->name('currencies.read_rate');
-	});
+		 Route::get('currencies/update-rates', [CurrencyController::class, 'updateRates'])
+			  ->name('currencies.update_rates');
+		 Route::get('currencies/read-rate', [CurrencyController::class, 'readRate'])
+             ->name('currencies.read_rate');
+	 });

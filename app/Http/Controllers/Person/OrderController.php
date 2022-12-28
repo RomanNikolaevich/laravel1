@@ -16,6 +16,7 @@ class OrderController extends Controller
     public function index():Factory|View|Application
     {
         $orders = Auth::user()->orders()->where('status', 1)->get();
+
         return view('auth.orders.index', compact('orders'));
     }
 
@@ -24,6 +25,7 @@ class OrderController extends Controller
         if (!Auth::user()->orders->contains($order)) {
             return back();
         }
+
         return view('auth.orders.show', compact('order'));
     }
 }

@@ -20,8 +20,10 @@ class ChackIsAdmin
         $user = Auth::user();
         if(!$user->isAdmin()){
             session()->flash('warning', 'У вас нет прав администратора'); //уведомление
+
             return redirect()->route('index'); //редирект если не админ на главную
         }
+
         return $next($request);
     }
 }

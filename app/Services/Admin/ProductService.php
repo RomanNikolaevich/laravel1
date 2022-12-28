@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Http\Requests\Products\ProductCreateRequest;
 use App\Http\Requests\Products\ProductUpdateRequest;
 use App\Models\Product;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,11 +14,43 @@ class ProductService
     /**
      * Get category list
      *
+     * @param string $code
      * @return Collection
      */
-    public function getList():Collection
+    public function getList(string $code): Collection
     {
-        return Product::get();
+        $date = Carbon::now();
+        $defaultCode = config('currency.default_code');
+        $code = strtoupper($code);
+        $products = Product::get();
+
+        /** @var CurrencyService $currencyService */
+        $currencyService = app(CurrencyService::class);
+
+        foreach ($products as $product) {
+            if ($code !== $defaultCode) {
+                $product->price = $currencyService->convertPrice($date, $code, $product->price);
+            }
+        }
+
+        return $products;
+    }
+
+    public function show(Product $product, string $code): Product
+    {
+        $date = Carbon::now();
+        $defaultCode = config('currency.default_code');
+        $code = strtoupper($code);
+
+        if ($code === $defaultCode) {
+            return $product;
+        }
+
+        /** @var CurrencyService $currencyService */
+        $currencyService = app(CurrencyService::class);
+        $product->price = $currencyService->convertPrice($date, $code, $product->price);
+
+        return $product;
     }
 
     /**
@@ -27,7 +60,7 @@ class ProductService
      *
      * @return Product
      */
-    public function store(ProductCreateRequest $request):Product
+    public function store(ProductCreateRequest $request): Product
     {
         $params = $request->all();
         unset($params['image']);
@@ -45,11 +78,11 @@ class ProductService
      * Update product
      *
      * @param ProductUpdateRequest $request
-     * @param Product              $product
+     * @param Product $product
      *
      * @return Product
      */
-    public function update(ProductUpdateRequest $request, Product $product):Product
+    public function update(ProductUpdateRequest $request, Product $product): Product
     {
         $params = $request->all();
         unset($params['image']);
@@ -76,7 +109,7 @@ class ProductService
      *
      * @return Product
      */
-    public function delete(Product $product):Product
+    public function delete(Product $product): Product
     {
         $product->delete();
 

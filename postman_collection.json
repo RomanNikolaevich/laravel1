@@ -11,18 +11,11 @@
 			"item": [
 				{
 					"name": "Products List",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": []
-						},
 						"url": {
-							"raw": "http://localhost/api/products",
+							"raw": "http://localhost/api/products?currency=eur",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -30,6 +23,12 @@
 							"path": [
 								"api",
 								"products"
+							],
+							"query": [
+								{
+									"key": "currency",
+									"value": "eur"
+								}
 							]
 						}
 					},
@@ -92,44 +91,11 @@
 				},
 				{
 					"name": "Products Show",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "code",
-									"value": "123456",
-									"type": "text"
-								},
-								{
-									"key": "name",
-									"value": "Product1",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "Product1 desc",
-									"type": "text"
-								},
-								{
-									"key": "price",
-									"value": "300",
-									"type": "text"
-								},
-								{
-									"key": "category_id",
-									"value": "30",
-									"type": "text"
-								}
-							]
-						},
 						"url": {
-							"raw": "http://localhost/api/products/12",
+							"raw": "http://localhost/api/products/12?currency=usd",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -138,6 +104,12 @@
 								"api",
 								"products",
 								"12"
+							],
+							"query": [
+								{
+									"key": "currency",
+									"value": "usd"
+								}
 							]
 						}
 					},
@@ -439,8 +411,28 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "status",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Roman",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "380951111111",
+									"type": "text"
+								}
+							]
+						},
 						"url": {
-							"raw": "http://localhost/api/orders?status=1&name=Roman&phone=380951111111",
+							"raw": "http://localhost/api/orders",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -448,20 +440,6 @@
 							"path": [
 								"api",
 								"orders"
-							],
-							"query": [
-								{
-									"key": "status",
-									"value": "1"
-								},
-								{
-									"key": "name",
-									"value": "Roman"
-								},
-								{
-									"key": "phone",
-									"value": "380951111111"
-								}
 							]
 						}
 					},
@@ -555,7 +533,7 @@
 			"name": "Currency",
 			"item": [
 				{
-					"name": "updateCurrencies",
+					"name": "updateRates",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -587,7 +565,7 @@
 					"response": []
 				},
 				{
-					"name": "getCurrencyRateFromDB",
+					"name": "readRate",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},

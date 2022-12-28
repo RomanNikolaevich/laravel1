@@ -24,6 +24,7 @@ class ResetController extends Controller
         }
 
         session()->flash('success', 'Проект был сброшен в начальное состояние');
+
         return redirect()->route('index');
     }
 }

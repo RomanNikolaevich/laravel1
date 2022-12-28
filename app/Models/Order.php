@@ -45,6 +45,7 @@ class Order extends Model
 		foreach ($this->products as $product) {
 			$sum += $product->getPriceForCount();
 		}
+
 		return $sum;
 	}
 
@@ -56,7 +57,8 @@ class Order extends Model
             $this->status = 1; //изменяем статус в БД с 0 до 1
             $this->save();
             session()->forget('orderId');//убираем из сессии и передаем ключ, по которому должен забыть переменную
-            return true;
+
+			return true;
         }
 
         return false;

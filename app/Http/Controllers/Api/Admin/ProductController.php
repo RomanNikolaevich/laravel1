@@ -9,25 +9,29 @@ use App\Http\Resources\Product\ProductResource;
 use App\Models\Product;
 use App\Services\Admin\ProductService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ProductController extends Controller
 {
-    protected ProductService $service;
+    protected ProductService $productService;
 
     public function __construct()
     {
-        $this->service = app(ProductService::class);
+        $this->productService = app(ProductService::class);
     }
 
     /**
-     * Display a listing of the product.
+     * Display a listing of the product with default currency.
      *
+     * @param Request $request
      * @return AnonymousResourceCollection
      */
-    public function index():AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $products = $this->service->getList();
+        $defaultCode = config('currency.default_code');
+        $code = $request->get('currency', $defaultCode);
+        $products = $this->productService->getList($code);
 
         return ProductResource::collection($products);
     }
@@ -39,9 +43,9 @@ class ProductController extends Controller
      *
      * @return ProductResource
      */
-    public function store(ProductCreateRequest $request):ProductResource
+    public function store(ProductCreateRequest $request): ProductResource
     {
-        $product = $this->service->store($request);
+        $product = $this->productService->store($request);
 
         /** @var ProductResource $resource */
         $resource = app(ProductResource::class, ['resource' => $product]);
@@ -51,28 +55,33 @@ class ProductController extends Controller
     }
 
     /**
-     * Show product
+     * Show product with default currency
      *
      * @param Product $product
-     *
+     * @param Request $request
      * @return ProductResource
      */
-    public function show(Product $product):ProductResource
+    public function show(Product $product, Request $request): ProductResource
     {
+        $defaultCode = config('currency.default_code');
+        $code = $request->get('currency', $defaultCode);
+        $this->productService->show($product, $code);
+
         return app(ProductResource::class, ['resource' => $product]);
-    }
+
+	}
 
     /**
      * Update product
      *
      * @param ProductUpdateRequest $request
-     * @param Product              $product
+     * @param Product $product
      *
      * @return JsonResponse
      */
-    public function update(ProductUpdateRequest $request, Product $product):JsonResponse
+    public function update(ProductUpdateRequest $request, Product $product): JsonResponse
     {
-        $product = $this->service->update($request, $product);
+        $product = $this->productService->update($request, $product);
 
         return app(ProductResource::class, ['resource' => $product]);
     }
@@ -84,9 +93,9 @@ class ProductController extends Controller
      *
      * @return JsonResponse
      */
-    public function destroy(Product $product):JsonResponse
+    public function destroy(Product $product): JsonResponse
     {
-        $product = $this->service->delete($product);
+        $product = $this->productService->delete($product);
 
         return app(ProductResource::class, ['resource' => $product]);
     }
