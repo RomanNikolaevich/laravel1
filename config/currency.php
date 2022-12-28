@@ -15,12 +15,13 @@ return [
 	'codes' => [
 		'EUR',
 		'USD',
+        'UAH',
 	],
 
 	/**
 	 * main currency for calculation
 	 */
-	'codes_main' => 'UAH',
+	'default_code' => 'UAH',
 
 	/**
 	 * coefficient for converting from integer to float
