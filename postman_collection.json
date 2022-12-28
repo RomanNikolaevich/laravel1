@@ -11,18 +11,11 @@
 			"item": [
 				{
 					"name": "Products List",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": []
-						},
 						"url": {
-							"raw": "http://localhost/api/products",
+							"raw": "http://localhost/api/products?currency=eur",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -30,34 +23,12 @@
 							"path": [
 								"api",
 								"products"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Products List Price Convert",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": []
-						},
-						"url": {
-							"raw": "http://localhost/api/products/1/usd",
-							"protocol": "http",
-							"host": [
-								"localhost"
 							],
-							"path": [
-								"api",
-								"products",
-								"1",
-								"usd"
+							"query": [
+								{
+									"key": "currency",
+									"value": "eur"
+								}
 							]
 						}
 					},
@@ -120,44 +91,11 @@
 				},
 				{
 					"name": "Products Show",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "code",
-									"value": "123456",
-									"type": "text"
-								},
-								{
-									"key": "name",
-									"value": "Product1",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "Product1 desc",
-									"type": "text"
-								},
-								{
-									"key": "price",
-									"value": "300",
-									"type": "text"
-								},
-								{
-									"key": "category_id",
-									"value": "30",
-									"type": "text"
-								}
-							]
-						},
 						"url": {
-							"raw": "http://localhost/api/products/12",
+							"raw": "http://localhost/api/products/12?currency=usd",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -166,6 +104,12 @@
 								"api",
 								"products",
 								"12"
+							],
+							"query": [
+								{
+									"key": "currency",
+									"value": "usd"
+								}
 							]
 						}
 					},
@@ -655,38 +599,6 @@
 								"api",
 								"currencies",
 								"read-rate"
-							],
-							"query": [
-								{
-									"key": "XDEBUG_SESSION_START",
-									"value": "PHPSTORM"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "convertPrice",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "json",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "http://localhost/api/currencies/price?XDEBUG_SESSION_START=PHPSTORM",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"path": [
-								"api",
-								"currencies",
-								"price"
 							],
 							"query": [
 								{
