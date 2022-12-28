@@ -56,8 +56,12 @@ class CurrencyService
      * @param string $code
      * @return float|bool|int|null
      */
-    public function getCurrencyRateFromDB(Carbon $date, string $code): float|bool|int|null
+    public function getCurrencyRateFromDB(Carbon $date, ?string $code): float|bool|int|null
     {
+        if (!empty(cache('rate_'.$code))) {
+            return cache('rate_'.$code);
+        }
+
         $currencyCollection = Currency::where('code', $code)
             ->where('enabled_at', $date->format('Y-m-d'))
             ->first();
